@@ -1,39 +1,78 @@
-# sacloud/go-template
+# sacloud/apigw-api-go
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/sacloud/go-template.svg)](https://pkg.go.dev/github.com/sacloud/go-template)
-[![Tests](https://github.com/sacloud/go-template/workflows/Tests/badge.svg)](https://github.com/sacloud/go-template/actions/workflows/tests.yaml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sacloud/go-template)](https://goreportcard.com/report/github.com/sacloud/go-template)
+Go言語向けのさくらのクラウド APIゲートウェイ APIライブラリ
 
-さくらのクラウド向けOSSプロダクトでのプロジェクトテンプレート(Go)
+KMS ドキュメント: https://manual.sakura.ad.jp/cloud/appliance/apigw/index.html
 
 ## 概要
 
-さくらのクラウド向けOSSプロダクトでGo言語を中心に用いるプロジェクトのためのテンプレート
+sacloud/apigw-api-goはさくらのクラウド APIゲートウェイ APIをGo言語から利用するためのAPIライブラリです。
 
-## 使い方
+```go
+import (
+	"context"
+	"os"
 
-GitHubでリポジトリを作成する際にテンプレートとしてsacloud/go-templateを選択して作成します。  
-![テンプレートの選択](docs/new_repo.png)
+	apigw "github.com/sacloud/apigw-api-go"
+	v1 "github.com/sacloud/apigw-api-go/apis/v1"
+)
 
-次に`go-teplate`という文字列を自身のプロジェクトのものに置き換えてください。
+func main() {
+	client, err := apigw.NewClient()
+	ctx := context.Background()
 
-例: exampleという名前のプロジェクトを作成する場合
+	serviceOp := apigw.NewServiceOp(client)
+	service, err := serviceOp.Create(ctx, &v1.ServiceDetail{
+		Name:     "test-service",
+		Host:     "example.sakura.ad.jp",
+		Port:     v1.NewOptInt(80),
+		Protocol: "http",
+	})
+	defer func() { _ = serviceOp.Delete(ctx, service.ID.Value) }()
 
-```bash
-# 作成したプロジェクトのディレクトリに移動
-cd example
-# 置き換え
-find . -type f | xargs sed -i '' -e "s/go-template/example/g"
+	routeOp := apigw.NewRouteOp(client, service.ID.Value)
+	route, err := routeOp.Create(ctx, &v1.RouteDetail{
+		Name:      v1.NewOptName("test-route"),
+		Methods:   []v1.HTTPMethod{v1.HTTPMethodGET, v1.HTTPMethodPOST},
+		Hosts:     []string{service.RouteHost.Value},
+		Protocols: v1.NewOptRouteDetailProtocols(v1.RouteDetailProtocolsHTTPHTTPS),
+		Tags:      []string{"Test"},
+	})
+    defer func() { _ = serviceOp.Delete(ctx, route.ID.Value) }()
+
+	// サブスクリプションに対する操作
+	subscriptionOp := apigw.NewSubscriptionOp(client)
+	// ユーザに対する操作
+	userOp := apigw.NewUserOp(client)
+	// グループに対する操作
+	groupOp := apigw.NewGroupOp(client)
+	// Routeに対する追加設定。認可やリクエスト・レスポンス変換
+	routeExtraOp := apigw.NewrouteExtraOp(client, service.ID.Value, route.ID.Value)
+	// ドメインに対する操作
+	domainOp := apigw.NewDomainOp(client)
+	// 証明書に対する操作
+	certOp := apigw.NewCertificateOp(client)
+}
 ```
 
-### DockerイメージをGitHub Container Registryで公開する際の注意点
+各 `xxx_test.go も参照。
 
-デフォルトでは`CR_PAT`が渡されないためGitHub Actionsでのイメージのビルド/プッシュに失敗します。
-また、パッケージを公開したい場合は初回のみ手作業が必要です。
+:warning:  v1.0に達するまでは互換性のない形で変更される可能性がありますのでご注意ください。
 
-このためDockerイメージをGitHub Container Registryで公開したい場合はオーガニゼーション管理者にご相談ください。
+## ogenによるコード生成
+
+以下のコマンドを実行
+
+```
+$ go get -tool github.com/ogen-go/ogen/cmd/ogen@latest
+$ go tool ogen -package v1 -target apis/v1 -clean -config ogen-config.yaml ./openapi/openapi-fixed.json
+```
+
+## TODO
+
+- OIDC機能の実装
 
 ## License
 
-`go-template` Copyright (C) 2022-2025 The sacloud/go-template authors.
+`apigw-api-go` Copyright (C) 2025- The sacloud/apigw-api-go authors.
 This project is published under [Apache 2.0 License](LICENSE).

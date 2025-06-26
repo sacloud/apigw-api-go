@@ -77,3 +77,8 @@ jobs:
       - name: make test
         run: |
           make test
+        env:
+          SAKURACLOUD_TEST_HOST: ${{secrets.TEST_HOST}}
+          SAKURACLOUD_TEST_DOMAIN: ${{secrets.TEST_DOMAIN}}
+          SAKURACLOUD_ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
+          SAKURACLOUD_ACCESS_TOKEN_SECRET: ${{secrets.ACCESS_TOKEN_SECRET}}
