@@ -2,7 +2,7 @@
 
 Go言語向けのさくらのクラウド APIゲートウェイ APIライブラリ
 
-KMS ドキュメント: https://manual.sakura.ad.jp/cloud/appliance/apigw/index.html
+APIゲートウェイ ドキュメント: https://manual.sakura.ad.jp/cloud/appliance/apigw/index.html
 
 ## 概要
 
