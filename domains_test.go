@@ -40,7 +40,7 @@ func TestDomainAPI(t *testing.T) {
 	require.Nil(t, err)
 
 	// TODO: 証明書を作ってのテストも行うようにする
-	//err = domainOp.Update(ctx, &v1.DomainPUT{CertificateId: v1.NewOptUUID(cert.ID.Value)}, domain.ID.Value)
+	// err = domainOp.Update(ctx, &v1.DomainPUT{CertificateId: v1.NewOptUUID(cert.ID.Value)}, domain.ID.Value)
 
 	domains, err := domainOp.List(ctx)
 	assert.Nil(t, err)

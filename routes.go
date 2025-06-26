@@ -251,7 +251,6 @@ func (op *routeExtraOp) ReadAuthorization(ctx context.Context) (*v1.RouteAuthori
 	case *v1.GetRouteAuthorizationOKApplicationJSON:
 		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
 		d := jx.DecodeBytes(*p)
-		//route := new(v1.RouteAuthorization)
 		route := new(v1.RouteAuthorizationDetailSum1)
 		if err := d.Obj(func(d *jx.Decoder, key string) error {
 			switch key {

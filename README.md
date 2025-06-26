@@ -38,7 +38,7 @@ func main() {
 		Protocols: v1.NewOptRouteDetailProtocols(v1.RouteDetailProtocolsHTTPHTTPS),
 		Tags:      []string{"Test"},
 	})
-    defer func() { _ = serviceOp.Delete(ctx, route.ID.Value) }()
+	defer func() { _ = routeOp.Delete(ctx, route.ID.Value) }()
 
 	// サブスクリプションに対する操作
 	subscriptionOp := apigw.NewSubscriptionOp(client)
