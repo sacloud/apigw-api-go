@@ -11,7 +11,6 @@ sacloud/apigw-api-goはさくらのクラウド APIゲートウェイ APIをGo�
 ```go
 import (
 	"context"
-	"os"
 
 	apigw "github.com/sacloud/apigw-api-go"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
@@ -28,6 +27,9 @@ func main() {
 		Port:     v1.NewOptInt(80),
 		Protocol: "http",
 	})
+	if err != nil {
+		// エラー処理
+	}
 	defer func() { _ = serviceOp.Delete(ctx, service.ID.Value) }()
 
 	routeOp := apigw.NewRouteOp(client, service.ID.Value)
@@ -38,24 +40,29 @@ func main() {
 		Protocols: v1.NewOptRouteDetailProtocols(v1.RouteDetailProtocolsHTTPHTTPS),
 		Tags:      []string{"Test"},
 	})
+	if err != nil {
+		// エラー処理
+	}
 	defer func() { _ = routeOp.Delete(ctx, route.ID.Value) }()
 
-	// サブスクリプションに対する操作
+	// サブスクリプションに関する操作
 	subscriptionOp := apigw.NewSubscriptionOp(client)
-	// ユーザに対する操作
+	// ユーザに関する操作
 	userOp := apigw.NewUserOp(client)
-	// グループに対する操作
+	// ユーザに関する追加設定。所属グループや認証の設定
+	userExtraOp := apigw.NewUserExtraOp(client, user.ID.Value)
+	// グループに関する操作
 	groupOp := apigw.NewGroupOp(client)
-	// Routeに対する追加設定。認可やリクエスト・レスポンス変換
-	routeExtraOp := apigw.NewrouteExtraOp(client, service.ID.Value, route.ID.Value)
-	// ドメインに対する操作
+	// Routeに関する追加設定。認可やリクエスト・レスポンス変換
+	routeExtraOp := apigw.NewRouteExtraOp(client, service.ID.Value, route.ID.Value)
+	// ドメインに関する操作
 	domainOp := apigw.NewDomainOp(client)
-	// 証明書に対する操作
+	// 証明書に関する操作
 	certOp := apigw.NewCertificateOp(client)
 }
 ```
 
-各 `xxx_test.go も参照。
+各 `xxx_test.go` も参照。
 
 :warning:  v1.0に達するまでは互換性のない形で変更される可能性がありますのでご注意ください。
 
@@ -65,7 +72,7 @@ func main() {
 
 ```
 $ go get -tool github.com/ogen-go/ogen/cmd/ogen@latest
-$ go tool ogen -package v1 -target apis/v1 -clean -config ogen-config.yaml ./openapi/openapi-fixed.json
+$ go tool ogen -package v1 -target apis/v1 -clean -config ogen-config.yaml ./openapi/openapi.json
 ```
 
 ## TODO

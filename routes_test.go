@@ -95,7 +95,7 @@ func TestRouteExtraAPI(t *testing.T) {
 	require.Nil(t, err)
 	defer func() { _ = groupOp.Delete(ctx, group.ID.Value) }()
 
-	routeExtraOp := apigw.NewrouteExtraOp(client, service.ID.Value, route.ID.Value)
+	routeExtraOp := apigw.NewRouteExtraOp(client, service.ID.Value, route.ID.Value)
 
 	err = routeExtraOp.EnableAuthorization(ctx, []v1.RouteAuthorization{{
 		ID:      group.ID,

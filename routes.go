@@ -87,6 +87,7 @@ func (op *routeOp) List(ctx context.Context) ([]v1.RouteDetail, error) {
 }
 
 func (op *routeOp) Create(ctx context.Context, request *v1.RouteDetail) (*v1.RouteDetail, error) {
+	// ogenが現状arrayに対するdefaultsをサポートしてないので、代わりに実装する
 	if len(request.Methods) == 0 {
 		request.Methods = v1.HTTPMethodGET.AllValues()
 	}
@@ -236,7 +237,7 @@ type routeExtraOp struct {
 	routeId   uuid.UUID
 }
 
-func NewrouteExtraOp(client *v1.Client, serviceId uuid.UUID, routeId uuid.UUID) RouteExtraAPI {
+func NewRouteExtraOp(client *v1.Client, serviceId uuid.UUID, routeId uuid.UUID) RouteExtraAPI {
 	return &routeExtraOp{client: client, serviceId: serviceId, routeId: routeId}
 }
 

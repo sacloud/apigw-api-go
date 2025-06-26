@@ -11,7 +11,7 @@ apigw-api-goではここで公開されている定義からogenが未サポー�
 
 - 現状ogenが複雑な`anyOf`を処理できないケース
 - 現状ogenが`array`に対する`default`を処理できないケース
-- OpenAPI定義のtypo群
+- OpenAPI定義のtypo群 (修正がリリースされ次第削除)
 
 ```diff
 diff --git a/openapi/openapi.json b/openapi/openapi.json
@@ -153,7 +153,7 @@ index 72f29b0..e75bc4c 100644
 
 - APIの裏側が`{}`を`[]`に自動変換する影響でCertificateのレスポンスのパースに失敗する不具合
 - ogenが現状`writeOnly`を認識しない不具合に対するrequiredチェックの無効化
-- AddServiceのステータスコードが201ではなく200になっている不具合
+- AddServiceのステータスコードが201ではなく200になっている不具合 (修正がリリースされ次第削除)
 
 ```diff
 diff --git a/apis/v1/oas_json_gen.go b/apis/v1/oas_json_gen.go
