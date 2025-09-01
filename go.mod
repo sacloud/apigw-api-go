@@ -10,7 +10,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/ogen-go/ogen v1.14.1-0.20250615151630-ffbdf74313c6
 	github.com/sacloud/api-client-go v0.3.0
-	github.com/stretchr/testify v1.10.0
+	github.com/sacloud/packages-go v0.0.11
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
@@ -28,7 +29,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sacloud/go-http v0.1.9 // indirect
-	github.com/sacloud/packages-go v0.0.11 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/ratelimit v0.3.1 // indirect
