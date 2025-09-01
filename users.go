@@ -44,85 +44,85 @@ func NewUserOp(client *v1.Client) UserAPI {
 func (op *userOp) List(ctx context.Context) ([]v1.User, error) {
 	res, err := op.client.GetUsers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("User.List", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.GetUsersOK:
 		return p.Apigw.Users, nil
 	case *v1.GetUsersBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.List", 400, errors.New(p.Message.Value))
 	case *v1.GetUsersInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.List", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("User.List", 0, nil)
 }
 
 func (op *userOp) Create(ctx context.Context, request *v1.UserDetail) (*v1.UserDetail, error) {
 	res, err := op.client.AddUser(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("User.Create", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.AddUserCreated:
 		return &p.Apigw.User.Value, nil
 	case *v1.AddUserBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Create", 400, errors.New(p.Message.Value))
 	case *v1.AddUserConflict:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Create", 409, errors.New(p.Message.Value))
 	case *v1.AddUserInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Create", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("User.Create", 0, nil)
 }
 
 func (op *userOp) Read(ctx context.Context, id uuid.UUID) (*v1.UserDetail, error) {
 	res, err := op.client.GetUser(ctx, v1.GetUserParams{UserId: id})
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("User.Read", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.GetUserOK:
 		return &p.Apigw.User.Value, nil
 	case *v1.GetUserBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Read", 400, errors.New(p.Message.Value))
 	case *v1.GetUserNotFound:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Read", 404, errors.New(p.Message.Value))
 	case *v1.GetUserInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("User.Read", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("User.Read", 0, nil)
 }
 
 func (op *userOp) Update(ctx context.Context, request *v1.UserDetail, id uuid.UUID) error {
 	res, err := op.client.UpdateUser(ctx, request, v1.UpdateUserParams{UserId: id})
 	if err != nil {
-		return err
+		return NewAPIError("User.Update", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.UpdateUserNoContent:
 		return nil
 	case *v1.UpdateUserBadRequest:
-		return errors.New(p.Message.Value)
+		return NewAPIError("User.Update", 400, errors.New(p.Message.Value))
 	case *v1.UpdateUserNotFound:
-		return errors.New(p.Message.Value)
+		return NewAPIError("User.Update", 404, errors.New(p.Message.Value))
 	case *v1.UpdateUserInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("User.Update", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("User.Update", 0, nil)
 }
 
 func (op *userOp) Delete(ctx context.Context, id uuid.UUID) error {
 	_, err := op.client.DeleteUser(ctx, v1.DeleteUserParams{UserId: id})
 	if err != nil {
-		return err
+		return NewAPIError("User.Delete", 0, err)
 	}
 
 	return nil
@@ -149,19 +149,19 @@ func NewUserExtraOp(client *v1.Client, userId uuid.UUID) UserExtraAPI {
 func (op *userExtraOp) ListGroup(ctx context.Context) ([]v1.UserGroupDetail, error) {
 	res, err := op.client.GetUserGroup(ctx, v1.GetUserGroupParams{UserId: op.userId})
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("UserExtra.ListGroup", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.GetUserGroupOK:
 		return p.Apigw.Groups, nil
 	case *v1.GetUserGroupBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("UserExtra.ListGroup", 400, errors.New(p.Message.Value))
 	case *v1.GetUserGroupInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("UserExtra.ListGroup", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("UserExtra.ListGroup", 0, nil)
 }
 
 func (op *userExtraOp) UpdateGroup(ctx context.Context, groupIdOrName string, isAssigned bool) error {
@@ -189,59 +189,60 @@ func (op *userExtraOp) UpdateGroup(ctx context.Context, groupIdOrName string, is
 
 	res, err := op.client.UpdateUserGroup(ctx, req, v1.UpdateUserGroupParams{UserId: op.userId})
 	if err != nil {
-		return err
+		return NewAPIError("UserExtra.UpdateGroup", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.UpdateUserGroupNoContent:
 		return nil
 	case *v1.UpdateUserGroupBadRequest:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateGroup", 400, errors.New(p.Message.Value))
 	case *v1.UpdateUserGroupNotFound:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateGroup", 404, errors.New(p.Message.Value))
 	case *v1.UpdateUserGroupInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateGroup", 500, errors.New(p.Message.Value))
 	}
 
-	return nil
+	return NewAPIError("UserExtra.UpdateGroup", 0, nil)
 }
 
 func (op *userExtraOp) ReadAuth(ctx context.Context) (*v1.UserAuthentication, error) {
 	res, err := op.client.GetUserAuthentication(ctx, v1.GetUserAuthenticationParams{UserId: op.userId})
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("UserExtra.ReadAuth", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.GetUserAuthenticationOK:
 		return &p.Apigw.UserAuthentication.Value, nil
 	case *v1.GetUserAuthenticationBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("UserExtra.ReadAuth", 400, errors.New(p.Message.Value))
 	case *v1.GetUserAuthenticationNotFound:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("UserExtra.ReadAuth", 404, errors.New(p.Message.Value))
 	case *v1.GetUserAuthenticationInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("UserExtra.ReadAuth", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("UserExtra.ReadAuth", 0, nil)
 }
+
 func (op *userExtraOp) UpdateAuth(ctx context.Context, request v1.UserAuthentication) error {
 	res, err := op.client.UpsertUserAuthentication(ctx, v1.NewOptUserAuthentication(request),
 		v1.UpsertUserAuthenticationParams{UserId: op.userId})
 	if err != nil {
-		return err
+		return NewAPIError("UserExtra.UpdateAuth", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.UpsertUserAuthenticationNoContent:
 		return nil
 	case *v1.UpsertUserAuthenticationBadRequest:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateAuth", 400, errors.New(p.Message.Value))
 	case *v1.UpsertUserAuthenticationNotFound:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateAuth", 404, errors.New(p.Message.Value))
 	case *v1.UpsertUserAuthenticationInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("UserExtra.UpdateAuth", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("UserExtra.UpdateAuth", 0, nil)
 }

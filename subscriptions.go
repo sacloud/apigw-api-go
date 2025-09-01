@@ -44,7 +44,7 @@ func NewSubscriptionOp(client *v1.Client) SubscriptionAPI {
 func (op *subscriptionOp) ListPlans(ctx context.Context) ([]v1.Plan, error) {
 	res, err := op.client.GetPlans(ctx)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("Subscription.ListPlans", 0, err)
 	}
 
 	switch p := res.(type) {
@@ -73,66 +73,66 @@ func (op *subscriptionOp) ListPlans(ctx context.Context) ([]v1.Plan, error) {
 		}
 		return plans, nil
 	case *v1.ErrorSchema:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Subscription.ListPlans", 400, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("Subscription.ListPlans", 0, nil)
 }
 
 func (op *subscriptionOp) Create(ctx context.Context, id uuid.UUID) error {
 	res, err := op.client.Subscribe(ctx, &v1.SubscriptionOption{PlanId: v1.NewOptUUID(id)})
 	if err != nil {
-		return err
+		return NewAPIError("Subscription.Create", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.SubscribeNoContent:
 		return nil
 	case *v1.SubscribeBadRequest:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Create", 400, errors.New(p.Message.Value))
 	case *v1.SubscribeUnauthorized:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Create", 401, errors.New(p.Message.Value))
 	case *v1.SubscribeInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Create", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("Subscription.Create", 0, nil)
 }
 
 func (op *subscriptionOp) Read(ctx context.Context) (*v1.SubscriptionStatusSum, error) {
 	res, err := op.client.GetSubscription(ctx)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("Subscription.Read", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.GetSubscriptionOK:
 		return &p.Apigw.Subscription.Value.OneOf, nil
 	case *v1.GetSubscriptionUnauthorized:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Subscription.Read", 401, errors.New(p.Message.Value))
 	case *v1.GetSubscriptionInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Subscription.Read", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("Subscription.Read", 0, nil)
 }
 
 func (op *subscriptionOp) Delete(ctx context.Context) error {
 	res, err := op.client.Unsubscribe(ctx)
 	if err != nil {
-		return err
+		return NewAPIError("Subscription.Delete", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.UnsubscribeNoContent:
 		return nil
 	case *v1.UnsubscribeBadRequest:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Delete", 400, errors.New(p.Message.Value))
 	case *v1.UnsubscribeNotFound:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Delete", 404, errors.New(p.Message.Value))
 	case *v1.UnsubscribeInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Subscription.Delete", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("Subscription.Delete", 0, nil)
 }
