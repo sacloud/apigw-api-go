@@ -44,7 +44,7 @@ func NewCertificateOp(client *v1.Client) CertificateAPI {
 func (op *certificateOp) List(ctx context.Context) ([]v1.Certificate, error) {
 	res, err := op.client.GetCertificates(ctx)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("Certificate.List", 0, err)
 	}
 
 	switch p := res.(type) {
@@ -74,80 +74,80 @@ func (op *certificateOp) List(ctx context.Context) ([]v1.Certificate, error) {
 		}
 		return certificates, nil
 	case *v1.GetCertificatesBadRequest:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.List", 400, errors.New(p.Message.Value))
 	case *v1.GetCertificatesUnauthorized:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.List", 401, errors.New(p.Message.Value))
 	case *v1.GetCertificatesInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.List", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("Certificate.List", 0, nil)
 }
 
 func (op *certificateOp) Create(ctx context.Context, request *v1.Certificate) (*v1.Certificate, error) {
 	res, err := op.client.AddCertificate(ctx, request)
 	if err != nil {
-		return nil, err
+		return nil, NewAPIError("Certificate.Create", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.AddCertificateCreated:
 		return &p.Apigw.Certificate.Value, nil
 	case *v1.AddCertificateBadRequest:
-		return nil, errors.New(p.Message.Value)
-	case *v1.AddCertificateConflict:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.Create", 400, errors.New(p.Message.Value))
 	case *v1.AddCertificateUnauthorized:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.Create", 401, errors.New(p.Message.Value))
+	case *v1.AddCertificateConflict:
+		return nil, NewAPIError("Certificate.Create", 409, errors.New(p.Message.Value))
 	case *v1.AddCertificateInternalServerError:
-		return nil, errors.New(p.Message.Value)
+		return nil, NewAPIError("Certificate.Create", 500, errors.New(p.Message.Value))
 	}
 
-	return nil, errors.New("unexpected response type")
+	return nil, NewAPIError("Certificate.Create", 0, nil)
 }
 
 func (op *certificateOp) Update(ctx context.Context, request *v1.Certificate, id uuid.UUID) error {
 	res, err := op.client.UpdateCertificate(ctx, request, v1.UpdateCertificateParams{CertificateId: id})
 	if err != nil {
-		return err
+		return NewAPIError("Certificate.Update", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.UpdateCertificateNoContent:
 		return nil
 	case *v1.UpdateCertificateBadRequest:
-		return errors.New(p.Message.Value)
-	case *v1.UpdateCertificateNotFound:
-		return errors.New(p.Message.Value)
-	case *v1.UpdateCertificateConflict:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Update", 400, errors.New(p.Message.Value))
 	case *v1.UpdateCertificateUnauthorized:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Update", 401, errors.New(p.Message.Value))
+	case *v1.UpdateCertificateNotFound:
+		return NewAPIError("Certificate.Update", 404, errors.New(p.Message.Value))
+	case *v1.UpdateCertificateConflict:
+		return NewAPIError("Certificate.Update", 409, errors.New(p.Message.Value))
 	case *v1.UpdateCertificateInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Update", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("Certificate.Update", 0, nil)
 }
 
 func (op *certificateOp) Delete(ctx context.Context, id uuid.UUID) error {
 	res, err := op.client.DeleteCertificate(ctx, v1.DeleteCertificateParams{CertificateId: id})
 	if err != nil {
-		return err
+		return NewAPIError("Certificate.Delete", 0, err)
 	}
 
 	switch p := res.(type) {
 	case *v1.DeleteCertificateNoContent:
 		return nil
 	case *v1.DeleteCertificateBadRequest:
-		return errors.New(p.Message.Value)
-	case *v1.DeleteCertificateNotFound:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Delete", 400, errors.New(p.Message.Value))
 	case *v1.DeleteCertificateUnauthorized:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Delete", 401, errors.New(p.Message.Value))
+	case *v1.DeleteCertificateNotFound:
+		return NewAPIError("Certificate.Delete", 404, errors.New(p.Message.Value))
 	case *v1.DeleteCertificateInternalServerError:
-		return errors.New(p.Message.Value)
+		return NewAPIError("Certificate.Delete", 500, errors.New(p.Message.Value))
 	}
 
-	return errors.New("unexpected response type")
+	return NewAPIError("Certificate.Delete", 0, nil)
 }
