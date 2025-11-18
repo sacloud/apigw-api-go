@@ -37,7 +37,7 @@ func TestServiceAPI(t *testing.T) {
 	serviceOp := apigw.NewServiceOp(client)
 
 	// Create a service for testing
-	serviceReq := v1.ServiceDetail{
+	serviceReq := v1.ServiceDetailRequest{
 		Name:     "test-service",
 		Host:     os.Getenv("SAKURACLOUD_TEST_HOST"),
 		Port:     v1.NewOptInt(80),
@@ -46,8 +46,13 @@ func TestServiceAPI(t *testing.T) {
 	created, err := serviceOp.Create(ctx, &serviceReq)
 	require.NoError(t, err)
 
-	serviceReq.Name = "test-service-updated"
-	err = serviceOp.Update(ctx, &serviceReq, created.ID.Value)
+	serviceUpd := v1.ServiceDetail{
+		Name:     "test-service-updated",
+		Host:     os.Getenv("SAKURACLOUD_TEST_HOST"),
+		Port:     v1.NewOptInt(80),
+		Protocol: "http",
+	}
+	err = serviceOp.Update(ctx, &serviceUpd, created.ID.Value)
 	assert.NoError(t, err)
 
 	updated, err := serviceOp.Read(ctx, created.ID.Value)

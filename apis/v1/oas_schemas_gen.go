@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 )
 
@@ -215,20 +214,34 @@ type AddRouteConflict ErrorSchema
 func (*AddRouteConflict) addRouteRes() {}
 
 type AddRouteCreated struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw AddRouteCreatedApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *AddRouteCreated) GetApigw() jx.Raw {
+func (s *AddRouteCreated) GetApigw() AddRouteCreatedApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *AddRouteCreated) SetApigw(val jx.Raw) {
+func (s *AddRouteCreated) SetApigw(val AddRouteCreatedApigw) {
 	s.Apigw = val
 }
 
 func (*AddRouteCreated) addRouteRes() {}
+
+type AddRouteCreatedApigw struct {
+	Route OptRouteDetail `json:"route"`
+}
+
+// GetRoute returns the value of Route.
+func (s *AddRouteCreatedApigw) GetRoute() OptRouteDetail {
+	return s.Route
+}
+
+// SetRoute sets the value of Route.
+func (s *AddRouteCreatedApigw) SetRoute(val OptRouteDetail) {
+	s.Route = val
+}
 
 type AddRouteInternalServerError ErrorSchema
 
@@ -250,6 +263,36 @@ type AddServiceConflict ErrorSchema
 
 func (*AddServiceConflict) addServiceRes() {}
 
+type AddServiceCreated struct {
+	Apigw AddServiceCreatedApigw `json:"apigw"`
+}
+
+// GetApigw returns the value of Apigw.
+func (s *AddServiceCreated) GetApigw() AddServiceCreatedApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *AddServiceCreated) SetApigw(val AddServiceCreatedApigw) {
+	s.Apigw = val
+}
+
+func (*AddServiceCreated) addServiceRes() {}
+
+type AddServiceCreatedApigw struct {
+	Service OptServiceDetailRequest `json:"service"`
+}
+
+// GetService returns the value of Service.
+func (s *AddServiceCreatedApigw) GetService() OptServiceDetailRequest {
+	return s.Service
+}
+
+// SetService sets the value of Service.
+func (s *AddServiceCreatedApigw) SetService(val OptServiceDetailRequest) {
+	s.Service = val
+}
+
 type AddServiceInternalServerError ErrorSchema
 
 func (*AddServiceInternalServerError) addServiceRes() {}
@@ -257,36 +300,6 @@ func (*AddServiceInternalServerError) addServiceRes() {}
 type AddServiceNotFound ErrorSchema
 
 func (*AddServiceNotFound) addServiceRes() {}
-
-type AddServiceOK struct {
-	Apigw AddServiceOKApigw `json:"apigw"`
-}
-
-// GetApigw returns the value of Apigw.
-func (s *AddServiceOK) GetApigw() AddServiceOKApigw {
-	return s.Apigw
-}
-
-// SetApigw sets the value of Apigw.
-func (s *AddServiceOK) SetApigw(val AddServiceOKApigw) {
-	s.Apigw = val
-}
-
-func (*AddServiceOK) addServiceRes() {}
-
-type AddServiceOKApigw struct {
-	Service OptServiceDetail `json:"service"`
-}
-
-// GetService returns the value of Service.
-func (s *AddServiceOKApigw) GetService() OptServiceDetail {
-	return s.Service
-}
-
-// SetService sets the value of Service.
-func (s *AddServiceOKApigw) SetService(val OptServiceDetail) {
-	s.Service = val
-}
 
 type AddServiceUnauthorized ErrorSchema
 
@@ -345,7 +358,6 @@ type AuthenticationMethodsItem string
 const (
 	AuthenticationMethodsItemAuthorizationCodeFlow AuthenticationMethodsItem = "authorizationCodeFlow"
 	AuthenticationMethodsItemAccessToken           AuthenticationMethodsItem = "accessToken"
-	AuthenticationMethodsItemRefreshToken          AuthenticationMethodsItem = "refreshToken"
 )
 
 // AllValues returns all AuthenticationMethodsItem values.
@@ -353,7 +365,6 @@ func (AuthenticationMethodsItem) AllValues() []AuthenticationMethodsItem {
 	return []AuthenticationMethodsItem{
 		AuthenticationMethodsItemAuthorizationCodeFlow,
 		AuthenticationMethodsItemAccessToken,
-		AuthenticationMethodsItemRefreshToken,
 	}
 }
 
@@ -363,8 +374,6 @@ func (s AuthenticationMethodsItem) MarshalText() ([]byte, error) {
 	case AuthenticationMethodsItemAuthorizationCodeFlow:
 		return []byte(s), nil
 	case AuthenticationMethodsItemAccessToken:
-		return []byte(s), nil
-	case AuthenticationMethodsItemRefreshToken:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -379,9 +388,6 @@ func (s *AuthenticationMethodsItem) UnmarshalText(data []byte) error {
 		return nil
 	case AuthenticationMethodsItemAccessToken:
 		*s = AuthenticationMethodsItemAccessToken
-		return nil
-	case AuthenticationMethodsItemRefreshToken:
-		*s = AuthenticationMethodsItemRefreshToken
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -400,7 +406,7 @@ type BasicAuth struct {
 	// ユーザ名.
 	UserName string `json:"userName"`
 	// パスワード.
-	Password string `json:"password"`
+	Password string `json:"password" mask:"true"`
 }
 
 // GetID returns the value of ID.
@@ -530,12 +536,27 @@ func (s *Certificate) SetEcdsa(val OptCertificateDetails) {
 	s.Ecdsa = val
 }
 
+// Ref: #/components/schemas/CertificateDTO
+type CertificateDTO struct {
+	Certificates []Certificate `json:"certificates"`
+}
+
+// GetCertificates returns the value of Certificates.
+func (s *CertificateDTO) GetCertificates() []Certificate {
+	return s.Certificates
+}
+
+// SetCertificates sets the value of Certificates.
+func (s *CertificateDTO) SetCertificates(val []Certificate) {
+	s.Certificates = val
+}
+
 // Ref: #/components/schemas/CertificateDetails
 type CertificateDetails struct {
 	// 証明書<br>改行コード（\n）はエスケープ文字に変換して指定する.
-	Cert OptString `json:"cert"`
+	Cert OptString `json:"cert" mask:"true"`
 	// 秘密鍵<br>改行コード（\n）はエスケープ文字に変換して指定する.
-	Key OptString `json:"key"`
+	Key OptString `json:"key" mask:"true"`
 	// 証明書の有効期限.
 	ExpiredAt OptDateTime `json:"expiredAt"`
 }
@@ -568,6 +589,107 @@ func (s *CertificateDetails) SetKey(val OptString) {
 // SetExpiredAt sets the value of ExpiredAt.
 func (s *CertificateDetails) SetExpiredAt(val OptDateTime) {
 	s.ExpiredAt = val
+}
+
+// CORS設定.
+// Ref: #/components/schemas/CorsConfig
+type CorsConfig struct {
+	// ブラウザがクロスオリジンリクエストに対してクレデンシャルを含めるかどうか.
+	Credentials OptBool `json:"credentials"`
+	// ブラウザがアクセス可能なヘッダー.
+	AccessControlExposedHeaders OptString `json:"accessControlExposedHeaders"`
+	// クライアントがリクエストに含めることができるヘッダー.
+	AccessControlAllowHeaders OptString `json:"accessControlAllowHeaders"`
+	// CORS許可の有効期限.
+	MaxAge OptInt32 `json:"maxAge"`
+	// CORS許可メソッド<br>未指定の場合は全メソッドを許可.
+	AccessControlAllowMethods []HTTPMethod `json:"accessControlAllowMethods"`
+	// CORSで許可するOrigin<br>未指定の場合は全Originを許可.
+	AccessControlAllowOrigins OptString `json:"accessControlAllowOrigins"`
+	// CORSのPreflightリクエストを処理するかどうか.
+	PreflightContinue OptBool `json:"preflightContinue"`
+	// PrivateNetwork内で動作させるかどうか.
+	PrivateNetwork OptBool `json:"privateNetwork"`
+}
+
+// GetCredentials returns the value of Credentials.
+func (s *CorsConfig) GetCredentials() OptBool {
+	return s.Credentials
+}
+
+// GetAccessControlExposedHeaders returns the value of AccessControlExposedHeaders.
+func (s *CorsConfig) GetAccessControlExposedHeaders() OptString {
+	return s.AccessControlExposedHeaders
+}
+
+// GetAccessControlAllowHeaders returns the value of AccessControlAllowHeaders.
+func (s *CorsConfig) GetAccessControlAllowHeaders() OptString {
+	return s.AccessControlAllowHeaders
+}
+
+// GetMaxAge returns the value of MaxAge.
+func (s *CorsConfig) GetMaxAge() OptInt32 {
+	return s.MaxAge
+}
+
+// GetAccessControlAllowMethods returns the value of AccessControlAllowMethods.
+func (s *CorsConfig) GetAccessControlAllowMethods() []HTTPMethod {
+	return s.AccessControlAllowMethods
+}
+
+// GetAccessControlAllowOrigins returns the value of AccessControlAllowOrigins.
+func (s *CorsConfig) GetAccessControlAllowOrigins() OptString {
+	return s.AccessControlAllowOrigins
+}
+
+// GetPreflightContinue returns the value of PreflightContinue.
+func (s *CorsConfig) GetPreflightContinue() OptBool {
+	return s.PreflightContinue
+}
+
+// GetPrivateNetwork returns the value of PrivateNetwork.
+func (s *CorsConfig) GetPrivateNetwork() OptBool {
+	return s.PrivateNetwork
+}
+
+// SetCredentials sets the value of Credentials.
+func (s *CorsConfig) SetCredentials(val OptBool) {
+	s.Credentials = val
+}
+
+// SetAccessControlExposedHeaders sets the value of AccessControlExposedHeaders.
+func (s *CorsConfig) SetAccessControlExposedHeaders(val OptString) {
+	s.AccessControlExposedHeaders = val
+}
+
+// SetAccessControlAllowHeaders sets the value of AccessControlAllowHeaders.
+func (s *CorsConfig) SetAccessControlAllowHeaders(val OptString) {
+	s.AccessControlAllowHeaders = val
+}
+
+// SetMaxAge sets the value of MaxAge.
+func (s *CorsConfig) SetMaxAge(val OptInt32) {
+	s.MaxAge = val
+}
+
+// SetAccessControlAllowMethods sets the value of AccessControlAllowMethods.
+func (s *CorsConfig) SetAccessControlAllowMethods(val []HTTPMethod) {
+	s.AccessControlAllowMethods = val
+}
+
+// SetAccessControlAllowOrigins sets the value of AccessControlAllowOrigins.
+func (s *CorsConfig) SetAccessControlAllowOrigins(val OptString) {
+	s.AccessControlAllowOrigins = val
+}
+
+// SetPreflightContinue sets the value of PreflightContinue.
+func (s *CorsConfig) SetPreflightContinue(val OptBool) {
+	s.PreflightContinue = val
+}
+
+// SetPrivateNetwork sets the value of PrivateNetwork.
+func (s *CorsConfig) SetPrivateNetwork(val OptBool) {
+	s.PrivateNetwork = val
 }
 
 type DeleteCertificateBadRequest ErrorSchema
@@ -794,6 +916,21 @@ func (s *Domain) SetCertificateName(val OptString) {
 	s.CertificateName = val
 }
 
+// Ref: #/components/schemas/DomainDTO
+type DomainDTO struct {
+	Domains []Domain `json:"domains"`
+}
+
+// GetDomains returns the value of Domains.
+func (s *DomainDTO) GetDomains() []Domain {
+	return s.Domains
+}
+
+// SetDomains sets the value of Domains.
+func (s *DomainDTO) SetDomains(val []Domain) {
+	s.Domains = val
+}
+
 // Ref: #/components/schemas/DomainPUT
 type DomainPUT struct {
 	// 証明書のID.
@@ -837,16 +974,16 @@ type GetCertificatesInternalServerError ErrorSchema
 func (*GetCertificatesInternalServerError) getCertificatesRes() {}
 
 type GetCertificatesOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw CertificateDTO `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetCertificatesOK) GetApigw() jx.Raw {
+func (s *GetCertificatesOK) GetApigw() CertificateDTO {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetCertificatesOK) SetApigw(val jx.Raw) {
+func (s *GetCertificatesOK) SetApigw(val CertificateDTO) {
 	s.Apigw = val
 }
 
@@ -865,16 +1002,16 @@ type GetDomainsInternalServerError ErrorSchema
 func (*GetDomainsInternalServerError) getDomainsRes() {}
 
 type GetDomainsOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw DomainDTO `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetDomainsOK) GetApigw() jx.Raw {
+func (s *GetDomainsOK) GetApigw() DomainDTO {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetDomainsOK) SetApigw(val jx.Raw) {
+func (s *GetDomainsOK) SetApigw(val DomainDTO) {
 	s.Apigw = val
 }
 
@@ -935,20 +1072,34 @@ type GetGroupsInternalServerError ErrorSchema
 func (*GetGroupsInternalServerError) getGroupsRes() {}
 
 type GetGroupsOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw GetGroupsOKApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetGroupsOK) GetApigw() jx.Raw {
+func (s *GetGroupsOK) GetApigw() GetGroupsOKApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetGroupsOK) SetApigw(val jx.Raw) {
+func (s *GetGroupsOK) SetApigw(val GetGroupsOKApigw) {
 	s.Apigw = val
 }
 
 func (*GetGroupsOK) getGroupsRes() {}
+
+type GetGroupsOKApigw struct {
+	Groups []Group `json:"groups"`
+}
+
+// GetGroups returns the value of Groups.
+func (s *GetGroupsOKApigw) GetGroups() []Group {
+	return s.Groups
+}
+
+// SetGroups sets the value of Groups.
+func (s *GetGroupsOKApigw) SetGroups(val []Group) {
+	s.Groups = val
+}
 
 type GetGroupsUnauthorized ErrorSchema
 
@@ -970,9 +1121,35 @@ type GetOidcByIdNotFound ErrorSchema
 
 func (*GetOidcByIdNotFound) getOidcByIdRes() {}
 
-type GetOidcByIdOKApplicationJSON jx.Raw
+type GetOidcByIdOK struct {
+	Apigw GetOidcByIdOKApigw `json:"apigw"`
+}
 
-func (*GetOidcByIdOKApplicationJSON) getOidcByIdRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetOidcByIdOK) GetApigw() GetOidcByIdOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetOidcByIdOK) SetApigw(val GetOidcByIdOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetOidcByIdOK) getOidcByIdRes() {}
+
+type GetOidcByIdOKApigw struct {
+	Oidc OptOidcDetail `json:"oidc"`
+}
+
+// GetOidc returns the value of Oidc.
+func (s *GetOidcByIdOKApigw) GetOidc() OptOidcDetail {
+	return s.Oidc
+}
+
+// SetOidc sets the value of Oidc.
+func (s *GetOidcByIdOKApigw) SetOidc(val OptOidcDetail) {
+	s.Oidc = val
+}
 
 type GetOidcByIdUnauthorized ErrorSchema
 
@@ -986,29 +1163,69 @@ type GetOidcNotFound ErrorSchema
 
 func (*GetOidcNotFound) getOidcRes() {}
 
-type GetOidcOKApplicationJSON jx.Raw
+type GetOidcOK struct {
+	Apigw GetOidcOKApigw `json:"apigw"`
+}
 
-func (*GetOidcOKApplicationJSON) getOidcRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetOidcOK) GetApigw() GetOidcOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetOidcOK) SetApigw(val GetOidcOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetOidcOK) getOidcRes() {}
+
+type GetOidcOKApigw struct {
+	Oidcs []Oidc `json:"oidcs"`
+}
+
+// GetOidcs returns the value of Oidcs.
+func (s *GetOidcOKApigw) GetOidcs() []Oidc {
+	return s.Oidcs
+}
+
+// SetOidcs sets the value of Oidcs.
+func (s *GetOidcOKApigw) SetOidcs(val []Oidc) {
+	s.Oidcs = val
+}
 
 type GetOidcUnauthorized ErrorSchema
 
 func (*GetOidcUnauthorized) getOidcRes() {}
 
 type GetPlansOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw GetPlansOKApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetPlansOK) GetApigw() jx.Raw {
+func (s *GetPlansOK) GetApigw() GetPlansOKApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetPlansOK) SetApigw(val jx.Raw) {
+func (s *GetPlansOK) SetApigw(val GetPlansOKApigw) {
 	s.Apigw = val
 }
 
 func (*GetPlansOK) getPlansRes() {}
+
+type GetPlansOKApigw struct {
+	Plans []Plan `json:"plans"`
+}
+
+// GetPlans returns the value of Plans.
+func (s *GetPlansOKApigw) GetPlans() []Plan {
+	return s.Plans
+}
+
+// SetPlans sets the value of Plans.
+func (s *GetPlansOKApigw) SetPlans(val []Plan) {
+	s.Plans = val
+}
 
 type GetRequestTransformationBadRequest ErrorSchema
 
@@ -1022,9 +1239,35 @@ type GetRequestTransformationNotFound ErrorSchema
 
 func (*GetRequestTransformationNotFound) getRequestTransformationRes() {}
 
-type GetRequestTransformationOKApplicationJSON jx.Raw
+type GetRequestTransformationOK struct {
+	Apigw GetRequestTransformationOKApigw `json:"apigw"`
+}
 
-func (*GetRequestTransformationOKApplicationJSON) getRequestTransformationRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetRequestTransformationOK) GetApigw() GetRequestTransformationOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetRequestTransformationOK) SetApigw(val GetRequestTransformationOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetRequestTransformationOK) getRequestTransformationRes() {}
+
+type GetRequestTransformationOKApigw struct {
+	RequestTransformation OptRequestTransformation `json:"requestTransformation"`
+}
+
+// GetRequestTransformation returns the value of RequestTransformation.
+func (s *GetRequestTransformationOKApigw) GetRequestTransformation() OptRequestTransformation {
+	return s.RequestTransformation
+}
+
+// SetRequestTransformation sets the value of RequestTransformation.
+func (s *GetRequestTransformationOKApigw) SetRequestTransformation(val OptRequestTransformation) {
+	s.RequestTransformation = val
+}
 
 type GetRequestTransformationUnauthorized ErrorSchema
 
@@ -1042,9 +1285,35 @@ type GetResponseTransformationNotFound ErrorSchema
 
 func (*GetResponseTransformationNotFound) getResponseTransformationRes() {}
 
-type GetResponseTransformationOKApplicationJSON jx.Raw
+type GetResponseTransformationOK struct {
+	Apigw GetResponseTransformationOKApigw `json:"apigw"`
+}
 
-func (*GetResponseTransformationOKApplicationJSON) getResponseTransformationRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetResponseTransformationOK) GetApigw() GetResponseTransformationOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetResponseTransformationOK) SetApigw(val GetResponseTransformationOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetResponseTransformationOK) getResponseTransformationRes() {}
+
+type GetResponseTransformationOKApigw struct {
+	ResponseTransformation OptResponseTransformation `json:"responseTransformation"`
+}
+
+// GetResponseTransformation returns the value of ResponseTransformation.
+func (s *GetResponseTransformationOKApigw) GetResponseTransformation() OptResponseTransformation {
+	return s.ResponseTransformation
+}
+
+// SetResponseTransformation sets the value of ResponseTransformation.
+func (s *GetResponseTransformationOKApigw) SetResponseTransformation(val OptResponseTransformation) {
+	s.ResponseTransformation = val
+}
 
 type GetResponseTransformationUnauthorized ErrorSchema
 
@@ -1062,9 +1331,35 @@ type GetRouteAuthorizationNotFound ErrorSchema
 
 func (*GetRouteAuthorizationNotFound) getRouteAuthorizationRes() {}
 
-type GetRouteAuthorizationOKApplicationJSON jx.Raw
+type GetRouteAuthorizationOK struct {
+	Apigw GetRouteAuthorizationOKApigw `json:"apigw"`
+}
 
-func (*GetRouteAuthorizationOKApplicationJSON) getRouteAuthorizationRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetRouteAuthorizationOK) GetApigw() GetRouteAuthorizationOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetRouteAuthorizationOK) SetApigw(val GetRouteAuthorizationOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetRouteAuthorizationOK) getRouteAuthorizationRes() {}
+
+type GetRouteAuthorizationOKApigw struct {
+	RouteAuthorization OptRouteAuthorizationDetailResponse `json:"routeAuthorization"`
+}
+
+// GetRouteAuthorization returns the value of RouteAuthorization.
+func (s *GetRouteAuthorizationOKApigw) GetRouteAuthorization() OptRouteAuthorizationDetailResponse {
+	return s.RouteAuthorization
+}
+
+// SetRouteAuthorization sets the value of RouteAuthorization.
+func (s *GetRouteAuthorizationOKApigw) SetRouteAuthorization(val OptRouteAuthorizationDetailResponse) {
+	s.RouteAuthorization = val
+}
 
 type GetRouteAuthorizationUnauthorized ErrorSchema
 
@@ -1082,9 +1377,35 @@ type GetRouteNotFound ErrorSchema
 
 func (*GetRouteNotFound) getRouteRes() {}
 
-type GetRouteOKApplicationJSON jx.Raw
+type GetRouteOK struct {
+	Apigw GetRouteOKApigw `json:"apigw"`
+}
 
-func (*GetRouteOKApplicationJSON) getRouteRes() {}
+// GetApigw returns the value of Apigw.
+func (s *GetRouteOK) GetApigw() GetRouteOKApigw {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetRouteOK) SetApigw(val GetRouteOKApigw) {
+	s.Apigw = val
+}
+
+func (*GetRouteOK) getRouteRes() {}
+
+type GetRouteOKApigw struct {
+	Route OptRouteDetail `json:"route"`
+}
+
+// GetRoute returns the value of Route.
+func (s *GetRouteOKApigw) GetRoute() OptRouteDetail {
+	return s.Route
+}
+
+// SetRoute sets the value of Route.
+func (s *GetRouteOKApigw) SetRoute(val OptRouteDetail) {
+	s.Route = val
+}
 
 type GetRouteUnauthorized ErrorSchema
 
@@ -1119,16 +1440,16 @@ func (s *GetServiceByIdOK) SetApigw(val GetServiceByIdOKApigw) {
 func (*GetServiceByIdOK) getServiceByIdRes() {}
 
 type GetServiceByIdOKApigw struct {
-	Service OptServiceDetail `json:"service"`
+	Service OptServiceDetailResponse `json:"service"`
 }
 
 // GetService returns the value of Service.
-func (s *GetServiceByIdOKApigw) GetService() OptServiceDetail {
+func (s *GetServiceByIdOKApigw) GetService() OptServiceDetailResponse {
 	return s.Service
 }
 
 // SetService sets the value of Service.
-func (s *GetServiceByIdOKApigw) SetService(val OptServiceDetail) {
+func (s *GetServiceByIdOKApigw) SetService(val OptServiceDetailResponse) {
 	s.Service = val
 }
 
@@ -1145,20 +1466,34 @@ type GetServiceRoutesNotFound ErrorSchema
 func (*GetServiceRoutesNotFound) getServiceRoutesRes() {}
 
 type GetServiceRoutesOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw GetServiceRoutesOKApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetServiceRoutesOK) GetApigw() jx.Raw {
+func (s *GetServiceRoutesOK) GetApigw() GetServiceRoutesOKApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetServiceRoutesOK) SetApigw(val jx.Raw) {
+func (s *GetServiceRoutesOK) SetApigw(val GetServiceRoutesOKApigw) {
 	s.Apigw = val
 }
 
 func (*GetServiceRoutesOK) getServiceRoutesRes() {}
+
+type GetServiceRoutesOKApigw struct {
+	Routes []Route `json:"routes"`
+}
+
+// GetRoutes returns the value of Routes.
+func (s *GetServiceRoutesOKApigw) GetRoutes() []Route {
+	return s.Routes
+}
+
+// SetRoutes sets the value of Routes.
+func (s *GetServiceRoutesOKApigw) SetRoutes(val []Route) {
+	s.Routes = val
+}
 
 type GetServiceRoutesUnauthorized ErrorSchema
 
@@ -1173,62 +1508,100 @@ type GetServicesInternalServerError ErrorSchema
 func (*GetServicesInternalServerError) getServicesRes() {}
 
 type GetServicesOK struct {
-	Apigw jx.Raw `json:"apigw"`
+	Apigw GetServicesOKApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetServicesOK) GetApigw() jx.Raw {
+func (s *GetServicesOK) GetApigw() GetServicesOKApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetServicesOK) SetApigw(val jx.Raw) {
+func (s *GetServicesOK) SetApigw(val GetServicesOKApigw) {
 	s.Apigw = val
 }
 
 func (*GetServicesOK) getServicesRes() {}
 
+type GetServicesOKApigw struct {
+	Services []ServiceDetailResponse `json:"services"`
+}
+
+// GetServices returns the value of Services.
+func (s *GetServicesOKApigw) GetServices() []ServiceDetailResponse {
+	return s.Services
+}
+
+// SetServices sets the value of Services.
+func (s *GetServicesOKApigw) SetServices(val []ServiceDetailResponse) {
+	s.Services = val
+}
+
 type GetServicesUnauthorized ErrorSchema
 
 func (*GetServicesUnauthorized) getServicesRes() {}
 
-type GetSubscriptionInternalServerError ErrorSchema
+type GetSubscriptionByIdInternalServerError ErrorSchema
 
-func (*GetSubscriptionInternalServerError) getSubscriptionRes() {}
+func (*GetSubscriptionByIdInternalServerError) getSubscriptionByIdRes() {}
 
-type GetSubscriptionOK struct {
-	Apigw GetSubscriptionOKApigw `json:"apigw"`
+type GetSubscriptionByIdNotFound ErrorSchema
+
+func (*GetSubscriptionByIdNotFound) getSubscriptionByIdRes() {}
+
+type GetSubscriptionByIdOK struct {
+	Apigw GetSubscriptionByIdOKApigw `json:"apigw"`
 }
 
 // GetApigw returns the value of Apigw.
-func (s *GetSubscriptionOK) GetApigw() GetSubscriptionOKApigw {
+func (s *GetSubscriptionByIdOK) GetApigw() GetSubscriptionByIdOKApigw {
 	return s.Apigw
 }
 
 // SetApigw sets the value of Apigw.
-func (s *GetSubscriptionOK) SetApigw(val GetSubscriptionOKApigw) {
+func (s *GetSubscriptionByIdOK) SetApigw(val GetSubscriptionByIdOKApigw) {
 	s.Apigw = val
 }
 
-func (*GetSubscriptionOK) getSubscriptionRes() {}
+func (*GetSubscriptionByIdOK) getSubscriptionByIdRes() {}
 
-type GetSubscriptionOKApigw struct {
-	Subscription OptSubscriptionStatus `json:"subscription"`
+type GetSubscriptionByIdOKApigw struct {
+	Subscription OptSubscriptionDetailResponse `json:"subscription"`
 }
 
 // GetSubscription returns the value of Subscription.
-func (s *GetSubscriptionOKApigw) GetSubscription() OptSubscriptionStatus {
+func (s *GetSubscriptionByIdOKApigw) GetSubscription() OptSubscriptionDetailResponse {
 	return s.Subscription
 }
 
 // SetSubscription sets the value of Subscription.
-func (s *GetSubscriptionOKApigw) SetSubscription(val OptSubscriptionStatus) {
+func (s *GetSubscriptionByIdOKApigw) SetSubscription(val OptSubscriptionDetailResponse) {
 	s.Subscription = val
 }
 
-type GetSubscriptionUnauthorized ErrorSchema
+type GetSubscriptionsInternalServerError ErrorSchema
 
-func (*GetSubscriptionUnauthorized) getSubscriptionRes() {}
+func (*GetSubscriptionsInternalServerError) getSubscriptionsRes() {}
+
+type GetSubscriptionsOK struct {
+	Apigw SubscriptionList `json:"apigw"`
+}
+
+// GetApigw returns the value of Apigw.
+func (s *GetSubscriptionsOK) GetApigw() SubscriptionList {
+	return s.Apigw
+}
+
+// SetApigw sets the value of Apigw.
+func (s *GetSubscriptionsOK) SetApigw(val SubscriptionList) {
+	s.Apigw = val
+}
+
+func (*GetSubscriptionsOK) getSubscriptionsRes() {}
+
+type GetSubscriptionsUnauthorized ErrorSchema
+
+func (*GetSubscriptionsUnauthorized) getSubscriptionsRes() {}
 
 type GetUserAuthenticationBadRequest ErrorSchema
 
@@ -1574,7 +1947,7 @@ type HmacAuth struct {
 	// ユーザ名.
 	UserName string `json:"userName"`
 	// HMACのシークレット.
-	Secret string `json:"secret"`
+	Secret string `json:"secret" mask:"true"`
 }
 
 // GetID returns the value of ID.
@@ -1627,6 +2000,138 @@ func (s *HmacAuth) SetSecret(val string) {
 	s.Secret = val
 }
 
+// IP制限.
+// Ref: #/components/schemas/IpRestrictionConfig
+type IpRestrictionConfig struct {
+	// IP制限を設定するプロトコル.
+	Protocols IpRestrictionConfigProtocols `json:"protocols"`
+	// IP制限の種別.
+	RestrictedBy IpRestrictionConfigRestrictedBy `json:"restrictedBy"`
+	// 対象IPアドレス<br>IPアドレスはIPv4のみを許可.
+	Ips []string `json:"ips"`
+}
+
+// GetProtocols returns the value of Protocols.
+func (s *IpRestrictionConfig) GetProtocols() IpRestrictionConfigProtocols {
+	return s.Protocols
+}
+
+// GetRestrictedBy returns the value of RestrictedBy.
+func (s *IpRestrictionConfig) GetRestrictedBy() IpRestrictionConfigRestrictedBy {
+	return s.RestrictedBy
+}
+
+// GetIps returns the value of Ips.
+func (s *IpRestrictionConfig) GetIps() []string {
+	return s.Ips
+}
+
+// SetProtocols sets the value of Protocols.
+func (s *IpRestrictionConfig) SetProtocols(val IpRestrictionConfigProtocols) {
+	s.Protocols = val
+}
+
+// SetRestrictedBy sets the value of RestrictedBy.
+func (s *IpRestrictionConfig) SetRestrictedBy(val IpRestrictionConfigRestrictedBy) {
+	s.RestrictedBy = val
+}
+
+// SetIps sets the value of Ips.
+func (s *IpRestrictionConfig) SetIps(val []string) {
+	s.Ips = val
+}
+
+// IP制限を設定するプロトコル.
+type IpRestrictionConfigProtocols string
+
+const (
+	IpRestrictionConfigProtocolsHTTPHTTPS IpRestrictionConfigProtocols = "http,https"
+	IpRestrictionConfigProtocolsHTTP      IpRestrictionConfigProtocols = "http"
+	IpRestrictionConfigProtocolsHTTPS     IpRestrictionConfigProtocols = "https"
+)
+
+// AllValues returns all IpRestrictionConfigProtocols values.
+func (IpRestrictionConfigProtocols) AllValues() []IpRestrictionConfigProtocols {
+	return []IpRestrictionConfigProtocols{
+		IpRestrictionConfigProtocolsHTTPHTTPS,
+		IpRestrictionConfigProtocolsHTTP,
+		IpRestrictionConfigProtocolsHTTPS,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s IpRestrictionConfigProtocols) MarshalText() ([]byte, error) {
+	switch s {
+	case IpRestrictionConfigProtocolsHTTPHTTPS:
+		return []byte(s), nil
+	case IpRestrictionConfigProtocolsHTTP:
+		return []byte(s), nil
+	case IpRestrictionConfigProtocolsHTTPS:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *IpRestrictionConfigProtocols) UnmarshalText(data []byte) error {
+	switch IpRestrictionConfigProtocols(data) {
+	case IpRestrictionConfigProtocolsHTTPHTTPS:
+		*s = IpRestrictionConfigProtocolsHTTPHTTPS
+		return nil
+	case IpRestrictionConfigProtocolsHTTP:
+		*s = IpRestrictionConfigProtocolsHTTP
+		return nil
+	case IpRestrictionConfigProtocolsHTTPS:
+		*s = IpRestrictionConfigProtocolsHTTPS
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// IP制限の種別.
+type IpRestrictionConfigRestrictedBy string
+
+const (
+	IpRestrictionConfigRestrictedByAllowIps IpRestrictionConfigRestrictedBy = "allowIps"
+	IpRestrictionConfigRestrictedByDenyIps  IpRestrictionConfigRestrictedBy = "denyIps"
+)
+
+// AllValues returns all IpRestrictionConfigRestrictedBy values.
+func (IpRestrictionConfigRestrictedBy) AllValues() []IpRestrictionConfigRestrictedBy {
+	return []IpRestrictionConfigRestrictedBy{
+		IpRestrictionConfigRestrictedByAllowIps,
+		IpRestrictionConfigRestrictedByDenyIps,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s IpRestrictionConfigRestrictedBy) MarshalText() ([]byte, error) {
+	switch s {
+	case IpRestrictionConfigRestrictedByAllowIps:
+		return []byte(s), nil
+	case IpRestrictionConfigRestrictedByDenyIps:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *IpRestrictionConfigRestrictedBy) UnmarshalText(data []byte) error {
+	switch IpRestrictionConfigRestrictedBy(data) {
+	case IpRestrictionConfigRestrictedByAllowIps:
+		*s = IpRestrictionConfigRestrictedByAllowIps
+		return nil
+	case IpRestrictionConfigRestrictedByDenyIps:
+		*s = IpRestrictionConfigRestrictedByDenyIps
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type JSONKey string
 
 // Merged schema.
@@ -1639,9 +2144,9 @@ type Jwt struct {
 	// 更新日時.
 	UpdatedAt OptDateTime `json:"updatedAt"`
 	// JWTの署名キー.
-	Key string `json:"key"`
+	Key string `json:"key" mask:"true"`
 	// JWTの署名シークレット.
-	Secret string `json:"secret"`
+	Secret string `json:"secret" mask:"true"`
 	// JWTの署名アルゴリズム.
 	Algorithm JwtAlgorithm `json:"algorithm"`
 }
@@ -1757,6 +2262,95 @@ func (s *JwtAlgorithm) UnmarshalText(data []byte) error {
 
 type Name string
 
+// Object Storage設定.
+// Ref: #/components/schemas/ObjectStorageConfig
+type ObjectStorageConfig struct {
+	// バケット名.
+	BucketName string `json:"bucketName"`
+	// フォルダ名.
+	FolderName OptString `json:"folderName"`
+	// S3互換のエンドポイントURL.
+	Endpoint string `json:"endpoint"`
+	// S3互換のリージョン名.
+	Region string `json:"region"`
+	// アクセスキーID.
+	AccessKeyID string `json:"accessKeyID" mask:"true"`
+	// シークレットアクセスキー.
+	SecretAccessKey string `json:"secretAccessKey" mask:"true"`
+	// ドキュメントインデックスを有効にするかどうか.
+	UseDocumentIndex bool `json:"useDocumentIndex"`
+}
+
+// GetBucketName returns the value of BucketName.
+func (s *ObjectStorageConfig) GetBucketName() string {
+	return s.BucketName
+}
+
+// GetFolderName returns the value of FolderName.
+func (s *ObjectStorageConfig) GetFolderName() OptString {
+	return s.FolderName
+}
+
+// GetEndpoint returns the value of Endpoint.
+func (s *ObjectStorageConfig) GetEndpoint() string {
+	return s.Endpoint
+}
+
+// GetRegion returns the value of Region.
+func (s *ObjectStorageConfig) GetRegion() string {
+	return s.Region
+}
+
+// GetAccessKeyID returns the value of AccessKeyID.
+func (s *ObjectStorageConfig) GetAccessKeyID() string {
+	return s.AccessKeyID
+}
+
+// GetSecretAccessKey returns the value of SecretAccessKey.
+func (s *ObjectStorageConfig) GetSecretAccessKey() string {
+	return s.SecretAccessKey
+}
+
+// GetUseDocumentIndex returns the value of UseDocumentIndex.
+func (s *ObjectStorageConfig) GetUseDocumentIndex() bool {
+	return s.UseDocumentIndex
+}
+
+// SetBucketName sets the value of BucketName.
+func (s *ObjectStorageConfig) SetBucketName(val string) {
+	s.BucketName = val
+}
+
+// SetFolderName sets the value of FolderName.
+func (s *ObjectStorageConfig) SetFolderName(val OptString) {
+	s.FolderName = val
+}
+
+// SetEndpoint sets the value of Endpoint.
+func (s *ObjectStorageConfig) SetEndpoint(val string) {
+	s.Endpoint = val
+}
+
+// SetRegion sets the value of Region.
+func (s *ObjectStorageConfig) SetRegion(val string) {
+	s.Region = val
+}
+
+// SetAccessKeyID sets the value of AccessKeyID.
+func (s *ObjectStorageConfig) SetAccessKeyID(val string) {
+	s.AccessKeyID = val
+}
+
+// SetSecretAccessKey sets the value of SecretAccessKey.
+func (s *ObjectStorageConfig) SetSecretAccessKey(val string) {
+	s.SecretAccessKey = val
+}
+
+// SetUseDocumentIndex sets the value of UseDocumentIndex.
+func (s *ObjectStorageConfig) SetUseDocumentIndex(val bool) {
+	s.UseDocumentIndex = val
+}
+
 // Merged schema.
 // Ref: #/components/schemas/Oidc
 type Oidc struct {
@@ -1767,23 +2361,25 @@ type Oidc struct {
 	// 更新日時.
 	UpdatedAt OptDateTime `json:"updatedAt"`
 	// 認証名<br>認証名は半角英数字およびアンダースコアのみを許可.
-	Name Name `json:"name"`
-	// IdPにアクセスするためのプロトコル.
-	Protocols             []OidcProtocolsItem   `json:"protocols"`
+	Name                  Name                  `json:"name"`
 	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
 	// IdPに紐づくエンドポイント.
 	Issuer string `json:"issuer"`
 	// IdPに紐づくクライアントID.
-	ClientId string `json:"clientId"`
+	ClientId string `json:"clientId" mask:"true"`
 	// IdPに紐づくクライアントシークレット.
-	ClientSecret string `json:"clientSecret"`
+	ClientSecret string `json:"clientSecret" mask:"true"`
 	// IdPに要求するスコープ.
 	Scopes []string `json:"scopes"`
 	// 認証情報のサービス（アップストリームサーバ）への転送を有効にするかどうか.
 	HideCredentials OptBool `json:"hideCredentials"`
 	// トークンaudクレーム検証値.
 	TokenAudiences []string `json:"tokenAudiences"`
-	// リフレッシュトークンパラメータ名<br>指定がない場合は"refresh_token"が設定される<br>※authenticationMethodsに"refreshToken"が含まれる場合に使用される.
+	// 認証情報をセッションとしてAPIゲートウェイへの保存を有効にするかどうか.
+	UseSession OptBool `json:"useSession"`
+	// この項目は現在、指定することができない<br>リフレッシュトークンパラメータ名<br>指定がない場合は"refresh_token"が設定される<br>※authenticationMethodsに"refreshToken"が含まれる場合に使用される.
+	//
+	// Deprecated: schema marks this property as deprecated.
 	RefreshTokenParamName OptString `json:"refreshTokenParamName"`
 }
 
@@ -1805,11 +2401,6 @@ func (s *Oidc) GetUpdatedAt() OptDateTime {
 // GetName returns the value of Name.
 func (s *Oidc) GetName() Name {
 	return s.Name
-}
-
-// GetProtocols returns the value of Protocols.
-func (s *Oidc) GetProtocols() []OidcProtocolsItem {
-	return s.Protocols
 }
 
 // GetAuthenticationMethods returns the value of AuthenticationMethods.
@@ -1847,6 +2438,11 @@ func (s *Oidc) GetTokenAudiences() []string {
 	return s.TokenAudiences
 }
 
+// GetUseSession returns the value of UseSession.
+func (s *Oidc) GetUseSession() OptBool {
+	return s.UseSession
+}
+
 // GetRefreshTokenParamName returns the value of RefreshTokenParamName.
 func (s *Oidc) GetRefreshTokenParamName() OptString {
 	return s.RefreshTokenParamName
@@ -1870,11 +2466,6 @@ func (s *Oidc) SetUpdatedAt(val OptDateTime) {
 // SetName sets the value of Name.
 func (s *Oidc) SetName(val Name) {
 	s.Name = val
-}
-
-// SetProtocols sets the value of Protocols.
-func (s *Oidc) SetProtocols(val []OidcProtocolsItem) {
-	s.Protocols = val
 }
 
 // SetAuthenticationMethods sets the value of AuthenticationMethods.
@@ -1912,50 +2503,217 @@ func (s *Oidc) SetTokenAudiences(val []string) {
 	s.TokenAudiences = val
 }
 
+// SetUseSession sets the value of UseSession.
+func (s *Oidc) SetUseSession(val OptBool) {
+	s.UseSession = val
+}
+
 // SetRefreshTokenParamName sets the value of RefreshTokenParamName.
 func (s *Oidc) SetRefreshTokenParamName(val OptString) {
 	s.RefreshTokenParamName = val
 }
 
-type OidcProtocolsItem string
-
-const (
-	OidcProtocolsItemHTTP  OidcProtocolsItem = "http"
-	OidcProtocolsItemHTTPS OidcProtocolsItem = "https"
-)
-
-// AllValues returns all OidcProtocolsItem values.
-func (OidcProtocolsItem) AllValues() []OidcProtocolsItem {
-	return []OidcProtocolsItem{
-		OidcProtocolsItemHTTP,
-		OidcProtocolsItemHTTPS,
-	}
+// Merged schema.
+// Ref: #/components/schemas/OidcDetail
+type OidcDetail struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	// 認証名<br>認証名は半角英数字およびアンダースコアのみを許可.
+	Name                  Name                  `json:"name"`
+	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
+	// IdPに紐づくエンドポイント.
+	Issuer string `json:"issuer"`
+	// IdPに紐づくクライアントID.
+	ClientId string `json:"clientId" mask:"true"`
+	// IdPに紐づくクライアントシークレット.
+	ClientSecret string `json:"clientSecret" mask:"true"`
+	// IdPに要求するスコープ.
+	Scopes []string `json:"scopes"`
+	// 認証情報のサービス（アップストリームサーバ）への転送を有効にするかどうか.
+	HideCredentials OptBool `json:"hideCredentials"`
+	// トークンaudクレーム検証値.
+	TokenAudiences []string `json:"tokenAudiences"`
+	// 認証情報をセッションとしてAPIゲートウェイへの保存を有効にするかどうか.
+	UseSession OptBool `json:"useSession"`
+	// この項目は現在、指定することができない<br>リフレッシュトークンパラメータ名<br>指定がない場合は"refresh_token"が設定される<br>※authenticationMethodsに"refreshToken"が含まれる場合に使用される.
+	//
+	// Deprecated: schema marks this property as deprecated.
+	RefreshTokenParamName OptString `json:"refreshTokenParamName"`
+	// OIDC認証を使用するServiceの要約情報.
+	Services []ServiceSummary `json:"services"`
 }
 
-// MarshalText implements encoding.TextMarshaler.
-func (s OidcProtocolsItem) MarshalText() ([]byte, error) {
-	switch s {
-	case OidcProtocolsItemHTTP:
-		return []byte(s), nil
-	case OidcProtocolsItemHTTPS:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
+// GetID returns the value of ID.
+func (s *OidcDetail) GetID() OptUUID {
+	return s.ID
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *OidcProtocolsItem) UnmarshalText(data []byte) error {
-	switch OidcProtocolsItem(data) {
-	case OidcProtocolsItemHTTP:
-		*s = OidcProtocolsItemHTTP
-		return nil
-	case OidcProtocolsItemHTTPS:
-		*s = OidcProtocolsItemHTTPS
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
+// GetCreatedAt returns the value of CreatedAt.
+func (s *OidcDetail) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *OidcDetail) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetName returns the value of Name.
+func (s *OidcDetail) GetName() Name {
+	return s.Name
+}
+
+// GetAuthenticationMethods returns the value of AuthenticationMethods.
+func (s *OidcDetail) GetAuthenticationMethods() AuthenticationMethods {
+	return s.AuthenticationMethods
+}
+
+// GetIssuer returns the value of Issuer.
+func (s *OidcDetail) GetIssuer() string {
+	return s.Issuer
+}
+
+// GetClientId returns the value of ClientId.
+func (s *OidcDetail) GetClientId() string {
+	return s.ClientId
+}
+
+// GetClientSecret returns the value of ClientSecret.
+func (s *OidcDetail) GetClientSecret() string {
+	return s.ClientSecret
+}
+
+// GetScopes returns the value of Scopes.
+func (s *OidcDetail) GetScopes() []string {
+	return s.Scopes
+}
+
+// GetHideCredentials returns the value of HideCredentials.
+func (s *OidcDetail) GetHideCredentials() OptBool {
+	return s.HideCredentials
+}
+
+// GetTokenAudiences returns the value of TokenAudiences.
+func (s *OidcDetail) GetTokenAudiences() []string {
+	return s.TokenAudiences
+}
+
+// GetUseSession returns the value of UseSession.
+func (s *OidcDetail) GetUseSession() OptBool {
+	return s.UseSession
+}
+
+// GetRefreshTokenParamName returns the value of RefreshTokenParamName.
+func (s *OidcDetail) GetRefreshTokenParamName() OptString {
+	return s.RefreshTokenParamName
+}
+
+// GetServices returns the value of Services.
+func (s *OidcDetail) GetServices() []ServiceSummary {
+	return s.Services
+}
+
+// SetID sets the value of ID.
+func (s *OidcDetail) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *OidcDetail) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *OidcDetail) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *OidcDetail) SetName(val Name) {
+	s.Name = val
+}
+
+// SetAuthenticationMethods sets the value of AuthenticationMethods.
+func (s *OidcDetail) SetAuthenticationMethods(val AuthenticationMethods) {
+	s.AuthenticationMethods = val
+}
+
+// SetIssuer sets the value of Issuer.
+func (s *OidcDetail) SetIssuer(val string) {
+	s.Issuer = val
+}
+
+// SetClientId sets the value of ClientId.
+func (s *OidcDetail) SetClientId(val string) {
+	s.ClientId = val
+}
+
+// SetClientSecret sets the value of ClientSecret.
+func (s *OidcDetail) SetClientSecret(val string) {
+	s.ClientSecret = val
+}
+
+// SetScopes sets the value of Scopes.
+func (s *OidcDetail) SetScopes(val []string) {
+	s.Scopes = val
+}
+
+// SetHideCredentials sets the value of HideCredentials.
+func (s *OidcDetail) SetHideCredentials(val OptBool) {
+	s.HideCredentials = val
+}
+
+// SetTokenAudiences sets the value of TokenAudiences.
+func (s *OidcDetail) SetTokenAudiences(val []string) {
+	s.TokenAudiences = val
+}
+
+// SetUseSession sets the value of UseSession.
+func (s *OidcDetail) SetUseSession(val OptBool) {
+	s.UseSession = val
+}
+
+// SetRefreshTokenParamName sets the value of RefreshTokenParamName.
+func (s *OidcDetail) SetRefreshTokenParamName(val OptString) {
+	s.RefreshTokenParamName = val
+}
+
+// SetServices sets the value of Services.
+func (s *OidcDetail) SetServices(val []ServiceSummary) {
+	s.Services = val
+}
+
+// OIDC認証要約情報.
+// Ref: #/components/schemas/OidcSummary
+type OidcSummary struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// OIDC認証名.
+	Name OptString `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *OidcSummary) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *OidcSummary) GetName() OptString {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *OidcSummary) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *OidcSummary) SetName(val OptString) {
+	s.Name = val
 }
 
 // NewOptBasicAuth returns new OptBasicAuth with value set to v.
@@ -2142,6 +2900,52 @@ func (o OptCertificateDetails) Or(d CertificateDetails) CertificateDetails {
 	return d
 }
 
+// NewOptCorsConfig returns new OptCorsConfig with value set to v.
+func NewOptCorsConfig(v CorsConfig) OptCorsConfig {
+	return OptCorsConfig{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCorsConfig is optional CorsConfig.
+type OptCorsConfig struct {
+	Value CorsConfig
+	Set   bool
+}
+
+// IsSet returns true if OptCorsConfig was set.
+func (o OptCorsConfig) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCorsConfig) Reset() {
+	var v CorsConfig
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCorsConfig) SetTo(v CorsConfig) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCorsConfig) Get() (v CorsConfig, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCorsConfig) Or(d CorsConfig) CorsConfig {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptDateTime returns new OptDateTime with value set to v.
 func NewOptDateTime(v time.Time) OptDateTime {
 	return OptDateTime{
@@ -2228,52 +3032,6 @@ func (o OptDomain) Get() (v Domain, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDomain) Or(d Domain) Domain {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptFloat64 returns new OptFloat64 with value set to v.
-func NewOptFloat64(v float64) OptFloat64 {
-	return OptFloat64{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptFloat64 is optional float64.
-type OptFloat64 struct {
-	Value float64
-	Set   bool
-}
-
-// IsSet returns true if OptFloat64 was set.
-func (o OptFloat64) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptFloat64) Reset() {
-	var v float64
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptFloat64) SetTo(v float64) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptFloat64) Get() (v float64, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptFloat64) Or(d float64) float64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -2464,6 +3222,52 @@ func (o OptInt) Or(d int) int {
 	return d
 }
 
+// NewOptInt32 returns new OptInt32 with value set to v.
+func NewOptInt32(v int32) OptInt32 {
+	return OptInt32{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt32 is optional int32.
+type OptInt32 struct {
+	Value int32
+	Set   bool
+}
+
+// IsSet returns true if OptInt32 was set.
+func (o OptInt32) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt32) Reset() {
+	var v int32
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt32) SetTo(v int32) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt32) Get() (v int32, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt32) Or(d int32) int32 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptInt64 returns new OptInt64 with value set to v.
 func NewOptInt64(v int64) OptInt64 {
 	return OptInt64{
@@ -2504,6 +3308,52 @@ func (o OptInt64) Get() (v int64, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt64) Or(d int64) int64 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptIpRestrictionConfig returns new OptIpRestrictionConfig with value set to v.
+func NewOptIpRestrictionConfig(v IpRestrictionConfig) OptIpRestrictionConfig {
+	return OptIpRestrictionConfig{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptIpRestrictionConfig is optional IpRestrictionConfig.
+type OptIpRestrictionConfig struct {
+	Value IpRestrictionConfig
+	Set   bool
+}
+
+// IsSet returns true if OptIpRestrictionConfig was set.
+func (o OptIpRestrictionConfig) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptIpRestrictionConfig) Reset() {
+	var v IpRestrictionConfig
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptIpRestrictionConfig) SetTo(v IpRestrictionConfig) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptIpRestrictionConfig) Get() (v IpRestrictionConfig, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptIpRestrictionConfig) Or(d IpRestrictionConfig) IpRestrictionConfig {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -2648,6 +3498,52 @@ func (o OptName) Or(d Name) Name {
 	return d
 }
 
+// NewOptObjectStorageConfig returns new OptObjectStorageConfig with value set to v.
+func NewOptObjectStorageConfig(v ObjectStorageConfig) OptObjectStorageConfig {
+	return OptObjectStorageConfig{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptObjectStorageConfig is optional ObjectStorageConfig.
+type OptObjectStorageConfig struct {
+	Value ObjectStorageConfig
+	Set   bool
+}
+
+// IsSet returns true if OptObjectStorageConfig was set.
+func (o OptObjectStorageConfig) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptObjectStorageConfig) Reset() {
+	var v ObjectStorageConfig
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptObjectStorageConfig) SetTo(v ObjectStorageConfig) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptObjectStorageConfig) Get() (v ObjectStorageConfig, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptObjectStorageConfig) Or(d ObjectStorageConfig) ObjectStorageConfig {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptOidc returns new OptOidc with value set to v.
 func NewOptOidc(v Oidc) OptOidc {
 	return OptOidc{
@@ -2694,38 +3590,38 @@ func (o OptOidc) Or(d Oidc) Oidc {
 	return d
 }
 
-// NewOptPlan returns new OptPlan with value set to v.
-func NewOptPlan(v Plan) OptPlan {
-	return OptPlan{
+// NewOptOidcDetail returns new OptOidcDetail with value set to v.
+func NewOptOidcDetail(v OidcDetail) OptOidcDetail {
+	return OptOidcDetail{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptPlan is optional Plan.
-type OptPlan struct {
-	Value Plan
+// OptOidcDetail is optional OidcDetail.
+type OptOidcDetail struct {
+	Value OidcDetail
 	Set   bool
 }
 
-// IsSet returns true if OptPlan was set.
-func (o OptPlan) IsSet() bool { return o.Set }
+// IsSet returns true if OptOidcDetail was set.
+func (o OptOidcDetail) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptPlan) Reset() {
-	var v Plan
+func (o *OptOidcDetail) Reset() {
+	var v OidcDetail
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptPlan) SetTo(v Plan) {
+func (o *OptOidcDetail) SetTo(v OidcDetail) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptPlan) Get() (v Plan, ok bool) {
+func (o OptOidcDetail) Get() (v OidcDetail, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -2733,7 +3629,99 @@ func (o OptPlan) Get() (v Plan, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptPlan) Or(d Plan) Plan {
+func (o OptOidcDetail) Or(d OidcDetail) OidcDetail {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptOidcSummary returns new OptOidcSummary with value set to v.
+func NewOptOidcSummary(v OidcSummary) OptOidcSummary {
+	return OptOidcSummary{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptOidcSummary is optional OidcSummary.
+type OptOidcSummary struct {
+	Value OidcSummary
+	Set   bool
+}
+
+// IsSet returns true if OptOidcSummary was set.
+func (o OptOidcSummary) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptOidcSummary) Reset() {
+	var v OidcSummary
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptOidcSummary) SetTo(v OidcSummary) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptOidcSummary) Get() (v OidcSummary, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptOidcSummary) Or(d OidcSummary) OidcSummary {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptOverage returns new OptOverage with value set to v.
+func NewOptOverage(v Overage) OptOverage {
+	return OptOverage{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptOverage is optional Overage.
+type OptOverage struct {
+	Value Overage
+	Set   bool
+}
+
+// IsSet returns true if OptOverage was set.
+func (o OptOverage) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptOverage) Reset() {
+	var v Overage
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptOverage) SetTo(v Overage) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptOverage) Get() (v Overage, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptOverage) Or(d Overage) Overage {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3016,6 +4004,52 @@ func (o OptRequestHeaderValue) Or(d RequestHeaderValue) RequestHeaderValue {
 	return d
 }
 
+// NewOptRequestModificationDetail returns new OptRequestModificationDetail with value set to v.
+func NewOptRequestModificationDetail(v RequestModificationDetail) OptRequestModificationDetail {
+	return OptRequestModificationDetail{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRequestModificationDetail is optional RequestModificationDetail.
+type OptRequestModificationDetail struct {
+	Value RequestModificationDetail
+	Set   bool
+}
+
+// IsSet returns true if OptRequestModificationDetail was set.
+func (o OptRequestModificationDetail) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRequestModificationDetail) Reset() {
+	var v RequestModificationDetail
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRequestModificationDetail) SetTo(v RequestModificationDetail) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRequestModificationDetail) Get() (v RequestModificationDetail, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRequestModificationDetail) Or(d RequestModificationDetail) RequestModificationDetail {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRequestRemoveDetail returns new OptRequestRemoveDetail with value set to v.
 func NewOptRequestRemoveDetail(v RequestRemoveDetail) OptRequestRemoveDetail {
 	return OptRequestRemoveDetail{
@@ -3240,52 +4274,6 @@ func (o OptResponseHeaderKey) Get() (v ResponseHeaderKey, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptResponseHeaderKey) Or(d ResponseHeaderKey) ResponseHeaderKey {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptResponseModification returns new OptResponseModification with value set to v.
-func NewOptResponseModification(v ResponseModification) OptResponseModification {
-	return OptResponseModification{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptResponseModification is optional ResponseModification.
-type OptResponseModification struct {
-	Value ResponseModification
-	Set   bool
-}
-
-// IsSet returns true if OptResponseModification was set.
-func (o OptResponseModification) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptResponseModification) Reset() {
-	var v ResponseModification
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptResponseModification) SetTo(v ResponseModification) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptResponseModification) Get() (v ResponseModification, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptResponseModification) Or(d ResponseModification) ResponseModification {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3568,6 +4556,98 @@ func (o OptRouteAuthorizationDetail) Or(d RouteAuthorizationDetail) RouteAuthori
 	return d
 }
 
+// NewOptRouteAuthorizationDetailResponse returns new OptRouteAuthorizationDetailResponse with value set to v.
+func NewOptRouteAuthorizationDetailResponse(v RouteAuthorizationDetailResponse) OptRouteAuthorizationDetailResponse {
+	return OptRouteAuthorizationDetailResponse{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRouteAuthorizationDetailResponse is optional RouteAuthorizationDetailResponse.
+type OptRouteAuthorizationDetailResponse struct {
+	Value RouteAuthorizationDetailResponse
+	Set   bool
+}
+
+// IsSet returns true if OptRouteAuthorizationDetailResponse was set.
+func (o OptRouteAuthorizationDetailResponse) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRouteAuthorizationDetailResponse) Reset() {
+	var v RouteAuthorizationDetailResponse
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRouteAuthorizationDetailResponse) SetTo(v RouteAuthorizationDetailResponse) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRouteAuthorizationDetailResponse) Get() (v RouteAuthorizationDetailResponse, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRouteAuthorizationDetailResponse) Or(d RouteAuthorizationDetailResponse) RouteAuthorizationDetailResponse {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptRouteDetail returns new OptRouteDetail with value set to v.
+func NewOptRouteDetail(v RouteDetail) OptRouteDetail {
+	return OptRouteDetail{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRouteDetail is optional RouteDetail.
+type OptRouteDetail struct {
+	Value RouteDetail
+	Set   bool
+}
+
+// IsSet returns true if OptRouteDetail was set.
+func (o OptRouteDetail) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRouteDetail) Reset() {
+	var v RouteDetail
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRouteDetail) SetTo(v RouteDetail) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRouteDetail) Get() (v RouteDetail, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRouteDetail) Or(d RouteDetail) RouteDetail {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRouteDetailHttpsRedirectStatusCode returns new OptRouteDetailHttpsRedirectStatusCode with value set to v.
 func NewOptRouteDetailHttpsRedirectStatusCode(v RouteDetailHttpsRedirectStatusCode) OptRouteDetailHttpsRedirectStatusCode {
 	return OptRouteDetailHttpsRedirectStatusCode{
@@ -3660,38 +4740,38 @@ func (o OptRouteDetailProtocols) Or(d RouteDetailProtocols) RouteDetailProtocols
 	return d
 }
 
-// NewOptServiceDetail returns new OptServiceDetail with value set to v.
-func NewOptServiceDetail(v ServiceDetail) OptServiceDetail {
-	return OptServiceDetail{
+// NewOptRouteHttpsRedirectStatusCode returns new OptRouteHttpsRedirectStatusCode with value set to v.
+func NewOptRouteHttpsRedirectStatusCode(v RouteHttpsRedirectStatusCode) OptRouteHttpsRedirectStatusCode {
+	return OptRouteHttpsRedirectStatusCode{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptServiceDetail is optional ServiceDetail.
-type OptServiceDetail struct {
-	Value ServiceDetail
+// OptRouteHttpsRedirectStatusCode is optional RouteHttpsRedirectStatusCode.
+type OptRouteHttpsRedirectStatusCode struct {
+	Value RouteHttpsRedirectStatusCode
 	Set   bool
 }
 
-// IsSet returns true if OptServiceDetail was set.
-func (o OptServiceDetail) IsSet() bool { return o.Set }
+// IsSet returns true if OptRouteHttpsRedirectStatusCode was set.
+func (o OptRouteHttpsRedirectStatusCode) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptServiceDetail) Reset() {
-	var v ServiceDetail
+func (o *OptRouteHttpsRedirectStatusCode) Reset() {
+	var v RouteHttpsRedirectStatusCode
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptServiceDetail) SetTo(v ServiceDetail) {
+func (o *OptRouteHttpsRedirectStatusCode) SetTo(v RouteHttpsRedirectStatusCode) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptServiceDetail) Get() (v ServiceDetail, ok bool) {
+func (o OptRouteHttpsRedirectStatusCode) Get() (v RouteHttpsRedirectStatusCode, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -3699,7 +4779,53 @@ func (o OptServiceDetail) Get() (v ServiceDetail, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptServiceDetail) Or(d ServiceDetail) ServiceDetail {
+func (o OptRouteHttpsRedirectStatusCode) Or(d RouteHttpsRedirectStatusCode) RouteHttpsRedirectStatusCode {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptRouteProtocols returns new OptRouteProtocols with value set to v.
+func NewOptRouteProtocols(v RouteProtocols) OptRouteProtocols {
+	return OptRouteProtocols{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRouteProtocols is optional RouteProtocols.
+type OptRouteProtocols struct {
+	Value RouteProtocols
+	Set   bool
+}
+
+// IsSet returns true if OptRouteProtocols was set.
+func (o OptRouteProtocols) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRouteProtocols) Reset() {
+	var v RouteProtocols
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRouteProtocols) SetTo(v RouteProtocols) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRouteProtocols) Get() (v RouteProtocols, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRouteProtocols) Or(d RouteProtocols) RouteProtocols {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3752,6 +4878,190 @@ func (o OptServiceDetailAuthentication) Or(d ServiceDetailAuthentication) Servic
 	return d
 }
 
+// NewOptServiceDetailRequest returns new OptServiceDetailRequest with value set to v.
+func NewOptServiceDetailRequest(v ServiceDetailRequest) OptServiceDetailRequest {
+	return OptServiceDetailRequest{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptServiceDetailRequest is optional ServiceDetailRequest.
+type OptServiceDetailRequest struct {
+	Value ServiceDetailRequest
+	Set   bool
+}
+
+// IsSet returns true if OptServiceDetailRequest was set.
+func (o OptServiceDetailRequest) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptServiceDetailRequest) Reset() {
+	var v ServiceDetailRequest
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptServiceDetailRequest) SetTo(v ServiceDetailRequest) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptServiceDetailRequest) Get() (v ServiceDetailRequest, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptServiceDetailRequest) Or(d ServiceDetailRequest) ServiceDetailRequest {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptServiceDetailRequestAuthentication returns new OptServiceDetailRequestAuthentication with value set to v.
+func NewOptServiceDetailRequestAuthentication(v ServiceDetailRequestAuthentication) OptServiceDetailRequestAuthentication {
+	return OptServiceDetailRequestAuthentication{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptServiceDetailRequestAuthentication is optional ServiceDetailRequestAuthentication.
+type OptServiceDetailRequestAuthentication struct {
+	Value ServiceDetailRequestAuthentication
+	Set   bool
+}
+
+// IsSet returns true if OptServiceDetailRequestAuthentication was set.
+func (o OptServiceDetailRequestAuthentication) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptServiceDetailRequestAuthentication) Reset() {
+	var v ServiceDetailRequestAuthentication
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptServiceDetailRequestAuthentication) SetTo(v ServiceDetailRequestAuthentication) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptServiceDetailRequestAuthentication) Get() (v ServiceDetailRequestAuthentication, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptServiceDetailRequestAuthentication) Or(d ServiceDetailRequestAuthentication) ServiceDetailRequestAuthentication {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptServiceDetailResponse returns new OptServiceDetailResponse with value set to v.
+func NewOptServiceDetailResponse(v ServiceDetailResponse) OptServiceDetailResponse {
+	return OptServiceDetailResponse{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptServiceDetailResponse is optional ServiceDetailResponse.
+type OptServiceDetailResponse struct {
+	Value ServiceDetailResponse
+	Set   bool
+}
+
+// IsSet returns true if OptServiceDetailResponse was set.
+func (o OptServiceDetailResponse) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptServiceDetailResponse) Reset() {
+	var v ServiceDetailResponse
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptServiceDetailResponse) SetTo(v ServiceDetailResponse) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptServiceDetailResponse) Get() (v ServiceDetailResponse, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptServiceDetailResponse) Or(d ServiceDetailResponse) ServiceDetailResponse {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptServiceDetailResponseAuthentication returns new OptServiceDetailResponseAuthentication with value set to v.
+func NewOptServiceDetailResponseAuthentication(v ServiceDetailResponseAuthentication) OptServiceDetailResponseAuthentication {
+	return OptServiceDetailResponseAuthentication{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptServiceDetailResponseAuthentication is optional ServiceDetailResponseAuthentication.
+type OptServiceDetailResponseAuthentication struct {
+	Value ServiceDetailResponseAuthentication
+	Set   bool
+}
+
+// IsSet returns true if OptServiceDetailResponseAuthentication was set.
+func (o OptServiceDetailResponseAuthentication) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptServiceDetailResponseAuthentication) Reset() {
+	var v ServiceDetailResponseAuthentication
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptServiceDetailResponseAuthentication) SetTo(v ServiceDetailResponseAuthentication) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptServiceDetailResponseAuthentication) Get() (v ServiceDetailResponseAuthentication, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptServiceDetailResponseAuthentication) Or(d ServiceDetailResponseAuthentication) ServiceDetailResponseAuthentication {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -3798,38 +5108,38 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
-// NewOptSubscribedStatus returns new OptSubscribedStatus with value set to v.
-func NewOptSubscribedStatus(v SubscribedStatus) OptSubscribedStatus {
-	return OptSubscribedStatus{
+// NewOptSubscriptionDetailResponse returns new OptSubscriptionDetailResponse with value set to v.
+func NewOptSubscriptionDetailResponse(v SubscriptionDetailResponse) OptSubscriptionDetailResponse {
+	return OptSubscriptionDetailResponse{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptSubscribedStatus is optional SubscribedStatus.
-type OptSubscribedStatus struct {
-	Value SubscribedStatus
+// OptSubscriptionDetailResponse is optional SubscriptionDetailResponse.
+type OptSubscriptionDetailResponse struct {
+	Value SubscriptionDetailResponse
 	Set   bool
 }
 
-// IsSet returns true if OptSubscribedStatus was set.
-func (o OptSubscribedStatus) IsSet() bool { return o.Set }
+// IsSet returns true if OptSubscriptionDetailResponse was set.
+func (o OptSubscriptionDetailResponse) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptSubscribedStatus) Reset() {
-	var v SubscribedStatus
+func (o *OptSubscriptionDetailResponse) Reset() {
+	var v SubscriptionDetailResponse
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptSubscribedStatus) SetTo(v SubscribedStatus) {
+func (o *OptSubscriptionDetailResponse) SetTo(v SubscriptionDetailResponse) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptSubscribedStatus) Get() (v SubscribedStatus, ok bool) {
+func (o OptSubscriptionDetailResponse) Get() (v SubscriptionDetailResponse, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -3837,45 +5147,45 @@ func (o OptSubscribedStatus) Get() (v SubscribedStatus, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptSubscribedStatus) Or(d SubscribedStatus) SubscribedStatus {
+func (o OptSubscriptionDetailResponse) Or(d SubscriptionDetailResponse) SubscriptionDetailResponse {
 	if v, ok := o.Get(); ok {
 		return v
 	}
 	return d
 }
 
-// NewOptSubscriptionStatus returns new OptSubscriptionStatus with value set to v.
-func NewOptSubscriptionStatus(v SubscriptionStatus) OptSubscriptionStatus {
-	return OptSubscriptionStatus{
+// NewOptSubscriptionPlanResponse returns new OptSubscriptionPlanResponse with value set to v.
+func NewOptSubscriptionPlanResponse(v SubscriptionPlanResponse) OptSubscriptionPlanResponse {
+	return OptSubscriptionPlanResponse{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptSubscriptionStatus is optional SubscriptionStatus.
-type OptSubscriptionStatus struct {
-	Value SubscriptionStatus
+// OptSubscriptionPlanResponse is optional SubscriptionPlanResponse.
+type OptSubscriptionPlanResponse struct {
+	Value SubscriptionPlanResponse
 	Set   bool
 }
 
-// IsSet returns true if OptSubscriptionStatus was set.
-func (o OptSubscriptionStatus) IsSet() bool { return o.Set }
+// IsSet returns true if OptSubscriptionPlanResponse was set.
+func (o OptSubscriptionPlanResponse) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptSubscriptionStatus) Reset() {
-	var v SubscriptionStatus
+func (o *OptSubscriptionPlanResponse) Reset() {
+	var v SubscriptionPlanResponse
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptSubscriptionStatus) SetTo(v SubscriptionStatus) {
+func (o *OptSubscriptionPlanResponse) SetTo(v SubscriptionPlanResponse) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptSubscriptionStatus) Get() (v SubscriptionStatus, ok bool) {
+func (o OptSubscriptionPlanResponse) Get() (v SubscriptionPlanResponse, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -3883,7 +5193,99 @@ func (o OptSubscriptionStatus) Get() (v SubscriptionStatus, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptSubscriptionStatus) Or(d SubscriptionStatus) SubscriptionStatus {
+func (o OptSubscriptionPlanResponse) Or(d SubscriptionPlanResponse) SubscriptionPlanResponse {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptSubscriptionPlanResponseMaxRequestsUnit returns new OptSubscriptionPlanResponseMaxRequestsUnit with value set to v.
+func NewOptSubscriptionPlanResponseMaxRequestsUnit(v SubscriptionPlanResponseMaxRequestsUnit) OptSubscriptionPlanResponseMaxRequestsUnit {
+	return OptSubscriptionPlanResponseMaxRequestsUnit{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptSubscriptionPlanResponseMaxRequestsUnit is optional SubscriptionPlanResponseMaxRequestsUnit.
+type OptSubscriptionPlanResponseMaxRequestsUnit struct {
+	Value SubscriptionPlanResponseMaxRequestsUnit
+	Set   bool
+}
+
+// IsSet returns true if OptSubscriptionPlanResponseMaxRequestsUnit was set.
+func (o OptSubscriptionPlanResponseMaxRequestsUnit) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptSubscriptionPlanResponseMaxRequestsUnit) Reset() {
+	var v SubscriptionPlanResponseMaxRequestsUnit
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptSubscriptionPlanResponseMaxRequestsUnit) SetTo(v SubscriptionPlanResponseMaxRequestsUnit) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptSubscriptionPlanResponseMaxRequestsUnit) Get() (v SubscriptionPlanResponseMaxRequestsUnit, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptSubscriptionPlanResponseMaxRequestsUnit) Or(d SubscriptionPlanResponseMaxRequestsUnit) SubscriptionPlanResponseMaxRequestsUnit {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptSubscriptionService returns new OptSubscriptionService with value set to v.
+func NewOptSubscriptionService(v SubscriptionService) OptSubscriptionService {
+	return OptSubscriptionService{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptSubscriptionService is optional SubscriptionService.
+type OptSubscriptionService struct {
+	Value SubscriptionService
+	Set   bool
+}
+
+// IsSet returns true if OptSubscriptionService was set.
+func (o OptSubscriptionService) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptSubscriptionService) Reset() {
+	var v SubscriptionService
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptSubscriptionService) SetTo(v SubscriptionService) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptSubscriptionService) Get() (v SubscriptionService, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptSubscriptionService) Or(d SubscriptionService) SubscriptionService {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -3930,52 +5332,6 @@ func (o OptUUID) Get() (v uuid.UUID, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptUnsubscribedStatus returns new OptUnsubscribedStatus with value set to v.
-func NewOptUnsubscribedStatus(v UnsubscribedStatus) OptUnsubscribedStatus {
-	return OptUnsubscribedStatus{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUnsubscribedStatus is optional UnsubscribedStatus.
-type OptUnsubscribedStatus struct {
-	Value UnsubscribedStatus
-	Set   bool
-}
-
-// IsSet returns true if OptUnsubscribedStatus was set.
-func (o OptUnsubscribedStatus) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUnsubscribedStatus) Reset() {
-	var v UnsubscribedStatus
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUnsubscribedStatus) SetTo(v UnsubscribedStatus) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUnsubscribedStatus) Get() (v UnsubscribedStatus, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUnsubscribedStatus) Or(d UnsubscribedStatus) UnsubscribedStatus {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -4074,6 +5430,34 @@ func (o OptUserDetail) Or(d UserDetail) UserDetail {
 	return d
 }
 
+// Ref: #/components/schemas/Overage
+type Overage struct {
+	// 超過リクエスト数単位.
+	UnitRequests OptInt `json:"unitRequests"`
+	// 超過リクエスト数単位の価格.
+	UnitPrice OptInt `json:"unitPrice"`
+}
+
+// GetUnitRequests returns the value of UnitRequests.
+func (s *Overage) GetUnitRequests() OptInt {
+	return s.UnitRequests
+}
+
+// GetUnitPrice returns the value of UnitPrice.
+func (s *Overage) GetUnitPrice() OptInt {
+	return s.UnitPrice
+}
+
+// SetUnitRequests sets the value of UnitRequests.
+func (s *Overage) SetUnitRequests(val OptInt) {
+	s.UnitRequests = val
+}
+
+// SetUnitPrice sets the value of UnitPrice.
+func (s *Overage) SetUnitPrice(val OptInt) {
+	s.UnitPrice = val
+}
+
 // Merged schema.
 // Ref: #/components/schemas/Plan
 type Plan struct {
@@ -4086,15 +5470,16 @@ type Plan struct {
 	// プラン名.
 	Name OptString `json:"name"`
 	// 価格.
-	Price OptFloat64 `json:"price"`
+	Price OptString `json:"price"`
 	// プランの説明.
 	Description OptString `json:"description"`
 	// 作成できるServiceの最大数.
 	MaxServices OptInt `json:"maxServices"`
-	// 最大Request数.
+	// 追加料金なしで利用できるリクエスト数.
 	MaxRequests OptInt `json:"maxRequests"`
-	// 最大Request数の単位.
+	// MaxRequestsの上限が適用される期間の単位.
 	MaxRequestsUnit OptPlanMaxRequestsUnit `json:"maxRequestsUnit"`
+	Overage         OptOverage             `json:"overage"`
 }
 
 // GetID returns the value of ID.
@@ -4118,7 +5503,7 @@ func (s *Plan) GetName() OptString {
 }
 
 // GetPrice returns the value of Price.
-func (s *Plan) GetPrice() OptFloat64 {
+func (s *Plan) GetPrice() OptString {
 	return s.Price
 }
 
@@ -4142,6 +5527,11 @@ func (s *Plan) GetMaxRequestsUnit() OptPlanMaxRequestsUnit {
 	return s.MaxRequestsUnit
 }
 
+// GetOverage returns the value of Overage.
+func (s *Plan) GetOverage() OptOverage {
+	return s.Overage
+}
+
 // SetID sets the value of ID.
 func (s *Plan) SetID(val OptUUID) {
 	s.ID = val
@@ -4163,7 +5553,7 @@ func (s *Plan) SetName(val OptString) {
 }
 
 // SetPrice sets the value of Price.
-func (s *Plan) SetPrice(val OptFloat64) {
+func (s *Plan) SetPrice(val OptString) {
 	s.Price = val
 }
 
@@ -4187,7 +5577,12 @@ func (s *Plan) SetMaxRequestsUnit(val OptPlanMaxRequestsUnit) {
 	s.MaxRequestsUnit = val
 }
 
-// 最大Request数の単位.
+// SetOverage sets the value of Overage.
+func (s *Plan) SetOverage(val OptOverage) {
+	s.Overage = val
+}
+
+// MaxRequestsの上限が適用される期間の単位.
 type PlanMaxRequestsUnit string
 
 const (
@@ -4280,6 +5675,124 @@ func (s *RequestAllowDetail) SetBody(val []JSONKey) {
 type RequestHeaderKey string
 
 type RequestHeaderValue string
+
+// Ref: #/components/schemas/RequestModificationDetail
+type RequestModificationDetail struct {
+	Headers     []RequestModificationDetailHeadersItem     `json:"headers"`
+	QueryParams []RequestModificationDetailQueryParamsItem `json:"queryParams"`
+	Body        []RequestModificationDetailBodyItem        `json:"body"`
+}
+
+// GetHeaders returns the value of Headers.
+func (s *RequestModificationDetail) GetHeaders() []RequestModificationDetailHeadersItem {
+	return s.Headers
+}
+
+// GetQueryParams returns the value of QueryParams.
+func (s *RequestModificationDetail) GetQueryParams() []RequestModificationDetailQueryParamsItem {
+	return s.QueryParams
+}
+
+// GetBody returns the value of Body.
+func (s *RequestModificationDetail) GetBody() []RequestModificationDetailBodyItem {
+	return s.Body
+}
+
+// SetHeaders sets the value of Headers.
+func (s *RequestModificationDetail) SetHeaders(val []RequestModificationDetailHeadersItem) {
+	s.Headers = val
+}
+
+// SetQueryParams sets the value of QueryParams.
+func (s *RequestModificationDetail) SetQueryParams(val []RequestModificationDetailQueryParamsItem) {
+	s.QueryParams = val
+}
+
+// SetBody sets the value of Body.
+func (s *RequestModificationDetail) SetBody(val []RequestModificationDetailBodyItem) {
+	s.Body = val
+}
+
+type RequestModificationDetailBodyItem struct {
+	// 追加するボディのキー.
+	Key OptJSONKey `json:"key"`
+	// 追加するボディの値.
+	Value OptString `json:"value"`
+}
+
+// GetKey returns the value of Key.
+func (s *RequestModificationDetailBodyItem) GetKey() OptJSONKey {
+	return s.Key
+}
+
+// GetValue returns the value of Value.
+func (s *RequestModificationDetailBodyItem) GetValue() OptString {
+	return s.Value
+}
+
+// SetKey sets the value of Key.
+func (s *RequestModificationDetailBodyItem) SetKey(val OptJSONKey) {
+	s.Key = val
+}
+
+// SetValue sets the value of Value.
+func (s *RequestModificationDetailBodyItem) SetValue(val OptString) {
+	s.Value = val
+}
+
+type RequestModificationDetailHeadersItem struct {
+	// 追加するヘッダのキー.
+	Key OptRequestHeaderKey `json:"key"`
+	// 追加するヘッダの値.
+	Value OptRequestHeaderValue `json:"value"`
+}
+
+// GetKey returns the value of Key.
+func (s *RequestModificationDetailHeadersItem) GetKey() OptRequestHeaderKey {
+	return s.Key
+}
+
+// GetValue returns the value of Value.
+func (s *RequestModificationDetailHeadersItem) GetValue() OptRequestHeaderValue {
+	return s.Value
+}
+
+// SetKey sets the value of Key.
+func (s *RequestModificationDetailHeadersItem) SetKey(val OptRequestHeaderKey) {
+	s.Key = val
+}
+
+// SetValue sets the value of Value.
+func (s *RequestModificationDetailHeadersItem) SetValue(val OptRequestHeaderValue) {
+	s.Value = val
+}
+
+type RequestModificationDetailQueryParamsItem struct {
+	// 追加するクエリパラメータのキー.
+	Key OptQueryParamKey `json:"key"`
+	// 追加するクエリパラメータの値.
+	Value OptQueryParamValue `json:"value"`
+}
+
+// GetKey returns the value of Key.
+func (s *RequestModificationDetailQueryParamsItem) GetKey() OptQueryParamKey {
+	return s.Key
+}
+
+// GetValue returns the value of Value.
+func (s *RequestModificationDetailQueryParamsItem) GetValue() OptQueryParamValue {
+	return s.Value
+}
+
+// SetKey sets the value of Key.
+func (s *RequestModificationDetailQueryParamsItem) SetKey(val OptQueryParamKey) {
+	s.Key = val
+}
+
+// SetValue sets the value of Value.
+func (s *RequestModificationDetailQueryParamsItem) SetValue(val OptQueryParamValue) {
+	s.Value = val
+}
 
 // Ref: #/components/schemas/RequestRemoveDetail
 type RequestRemoveDetail struct {
@@ -4439,13 +5952,13 @@ func (s *RequestRenameDetailQueryParamsItem) SetTo(val OptQueryParamKey) {
 
 // Ref: #/components/schemas/RequestTransformation
 type RequestTransformation struct {
-	HttpMethod OptHTTPMethod           `json:"httpMethod"`
-	Allow      OptRequestAllowDetail   `json:"allow"`
-	Remove     OptRequestRemoveDetail  `json:"remove"`
-	Rename     OptRequestRenameDetail  `json:"rename"`
-	Replace    OptResponseModification `json:"replace"`
-	Add        OptResponseModification `json:"add"`
-	Append     OptResponseModification `json:"append"`
+	HttpMethod OptHTTPMethod                `json:"httpMethod"`
+	Allow      OptRequestAllowDetail        `json:"allow"`
+	Remove     OptRequestRemoveDetail       `json:"remove"`
+	Rename     OptRequestRenameDetail       `json:"rename"`
+	Replace    OptRequestModificationDetail `json:"replace"`
+	Add        OptRequestModificationDetail `json:"add"`
+	Append     OptRequestModificationDetail `json:"append"`
 }
 
 // GetHttpMethod returns the value of HttpMethod.
@@ -4469,17 +5982,17 @@ func (s *RequestTransformation) GetRename() OptRequestRenameDetail {
 }
 
 // GetReplace returns the value of Replace.
-func (s *RequestTransformation) GetReplace() OptResponseModification {
+func (s *RequestTransformation) GetReplace() OptRequestModificationDetail {
 	return s.Replace
 }
 
 // GetAdd returns the value of Add.
-func (s *RequestTransformation) GetAdd() OptResponseModification {
+func (s *RequestTransformation) GetAdd() OptRequestModificationDetail {
 	return s.Add
 }
 
 // GetAppend returns the value of Append.
-func (s *RequestTransformation) GetAppend() OptResponseModification {
+func (s *RequestTransformation) GetAppend() OptRequestModificationDetail {
 	return s.Append
 }
 
@@ -4504,17 +6017,17 @@ func (s *RequestTransformation) SetRename(val OptRequestRenameDetail) {
 }
 
 // SetReplace sets the value of Replace.
-func (s *RequestTransformation) SetReplace(val OptResponseModification) {
+func (s *RequestTransformation) SetReplace(val OptRequestModificationDetail) {
 	s.Replace = val
 }
 
 // SetAdd sets the value of Add.
-func (s *RequestTransformation) SetAdd(val OptResponseModification) {
+func (s *RequestTransformation) SetAdd(val OptRequestModificationDetail) {
 	s.Add = val
 }
 
 // SetAppend sets the value of Append.
-func (s *RequestTransformation) SetAppend(val OptResponseModification) {
+func (s *RequestTransformation) SetAppend(val OptRequestModificationDetail) {
 	s.Append = val
 }
 
@@ -4535,70 +6048,6 @@ func (s *ResponseAllowDetail) SetJsonKeys(val []JSONKey) {
 }
 
 type ResponseHeaderKey string
-
-// Ref: #/components/schemas/ResponseModification
-type ResponseModification struct {
-	Headers     []ResponseModificationHeadersItem     `json:"headers"`
-	QueryParams []ResponseModificationQueryParamsItem `json:"queryParams"`
-	Body        []ResponseModificationBodyItem        `json:"body"`
-}
-
-// GetHeaders returns the value of Headers.
-func (s *ResponseModification) GetHeaders() []ResponseModificationHeadersItem {
-	return s.Headers
-}
-
-// GetQueryParams returns the value of QueryParams.
-func (s *ResponseModification) GetQueryParams() []ResponseModificationQueryParamsItem {
-	return s.QueryParams
-}
-
-// GetBody returns the value of Body.
-func (s *ResponseModification) GetBody() []ResponseModificationBodyItem {
-	return s.Body
-}
-
-// SetHeaders sets the value of Headers.
-func (s *ResponseModification) SetHeaders(val []ResponseModificationHeadersItem) {
-	s.Headers = val
-}
-
-// SetQueryParams sets the value of QueryParams.
-func (s *ResponseModification) SetQueryParams(val []ResponseModificationQueryParamsItem) {
-	s.QueryParams = val
-}
-
-// SetBody sets the value of Body.
-func (s *ResponseModification) SetBody(val []ResponseModificationBodyItem) {
-	s.Body = val
-}
-
-type ResponseModificationBodyItem struct {
-	// 追加するボディのキー.
-	Key OptJSONKey `json:"key"`
-	// 追加するボディの値.
-	Value OptString `json:"value"`
-}
-
-// GetKey returns the value of Key.
-func (s *ResponseModificationBodyItem) GetKey() OptJSONKey {
-	return s.Key
-}
-
-// GetValue returns the value of Value.
-func (s *ResponseModificationBodyItem) GetValue() OptString {
-	return s.Value
-}
-
-// SetKey sets the value of Key.
-func (s *ResponseModificationBodyItem) SetKey(val OptJSONKey) {
-	s.Key = val
-}
-
-// SetValue sets the value of Value.
-func (s *ResponseModificationBodyItem) SetValue(val OptString) {
-	s.Value = val
-}
 
 // Ref: #/components/schemas/ResponseModificationDetail
 type ResponseModificationDetail struct {
@@ -4689,60 +6138,6 @@ func (s *ResponseModificationDetailJSONItem) SetKey(val OptJSONKey) {
 
 // SetValue sets the value of Value.
 func (s *ResponseModificationDetailJSONItem) SetValue(val OptString) {
-	s.Value = val
-}
-
-type ResponseModificationHeadersItem struct {
-	// 追加するヘッダのキー.
-	Key OptRequestHeaderKey `json:"key"`
-	// 追加するヘッダの値.
-	Value OptRequestHeaderValue `json:"value"`
-}
-
-// GetKey returns the value of Key.
-func (s *ResponseModificationHeadersItem) GetKey() OptRequestHeaderKey {
-	return s.Key
-}
-
-// GetValue returns the value of Value.
-func (s *ResponseModificationHeadersItem) GetValue() OptRequestHeaderValue {
-	return s.Value
-}
-
-// SetKey sets the value of Key.
-func (s *ResponseModificationHeadersItem) SetKey(val OptRequestHeaderKey) {
-	s.Key = val
-}
-
-// SetValue sets the value of Value.
-func (s *ResponseModificationHeadersItem) SetValue(val OptRequestHeaderValue) {
-	s.Value = val
-}
-
-type ResponseModificationQueryParamsItem struct {
-	// 追加するクエリパラメータのキー.
-	Key OptQueryParamKey `json:"key"`
-	// 追加するクエリパラメータの値.
-	Value OptQueryParamValue `json:"value"`
-}
-
-// GetKey returns the value of Key.
-func (s *ResponseModificationQueryParamsItem) GetKey() OptQueryParamKey {
-	return s.Key
-}
-
-// GetValue returns the value of Value.
-func (s *ResponseModificationQueryParamsItem) GetValue() OptQueryParamValue {
-	return s.Value
-}
-
-// SetKey sets the value of Key.
-func (s *ResponseModificationQueryParamsItem) SetKey(val OptQueryParamKey) {
-	s.Key = val
-}
-
-// SetValue sets the value of Value.
-func (s *ResponseModificationQueryParamsItem) SetValue(val OptQueryParamValue) {
 	s.Value = val
 }
 
@@ -5051,6 +6446,213 @@ func (s *ResponseTransformation) SetAppend(val OptResponseModificationDetail) {
 	s.Append = val
 }
 
+// Merged schema.
+// Ref: #/components/schemas/Route
+type Route struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	ServiceId OptUUID     `json:"serviceId"`
+	Name      OptName     `json:"name"`
+	// Routeを検索するためのタグ.
+	Tags Tags `json:"tags"`
+	// Routeにアクセスするためのプロトコル.
+	Protocols OptRouteProtocols `json:"protocols"`
+	// Routeにアクセスするためのパス<br>パスはスラッシュまたはチルダスラッシュで始まるパス文字列のみを許可.
+	Path OptString `json:"path"`
+	// 自動発行されたホスト<br>hostsに値が設定されていない場合に有効.
+	Host OptString `json:"host"`
+	// ホスト名<br>自動発行されたホストまたは設定したドメインを指定する<br>自動発行されたホストはService詳細照会APIで確認できる<br>作成したドメインはDomain一覧照会APIで確認できる.
+	Hosts []string `json:"hosts"`
+	// RouteにアクセスするためのHTTPメソッド<br>未指定の場合は全メソッドを許可<br>オブジェクトストレージ形式のサービスに紐づく場合は、GET・HEAD・OPTIONSメソッドのみを許可.
+	Methods []HTTPMethod `json:"methods"`
+	// HTTPSリダイレクト時のステータスコード.
+	HttpsRedirectStatusCode OptRouteHttpsRedirectStatusCode `json:"httpsRedirectStatusCode"`
+	// パスを正規表現で指定した場合の優先度<br>0が最優先.
+	RegexPriority OptInt `json:"regexPriority"`
+	// リクエストのパスからルートのパスを削除するかどうか.
+	StripPath OptBool `json:"stripPath"`
+	// リクエストのHostヘッダーを保持するかどうか.
+	PreserveHost OptBool `json:"preserveHost"`
+	// リクエストのバッファリングを有効にするかどうか.
+	RequestBuffering OptBool `json:"requestBuffering"`
+	// レスポンスのバッファリングを有効にするかどうか.
+	ResponseBuffering OptBool `json:"responseBuffering"`
+}
+
+// GetID returns the value of ID.
+func (s *Route) GetID() OptUUID {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Route) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Route) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetServiceId returns the value of ServiceId.
+func (s *Route) GetServiceId() OptUUID {
+	return s.ServiceId
+}
+
+// GetName returns the value of Name.
+func (s *Route) GetName() OptName {
+	return s.Name
+}
+
+// GetTags returns the value of Tags.
+func (s *Route) GetTags() Tags {
+	return s.Tags
+}
+
+// GetProtocols returns the value of Protocols.
+func (s *Route) GetProtocols() OptRouteProtocols {
+	return s.Protocols
+}
+
+// GetPath returns the value of Path.
+func (s *Route) GetPath() OptString {
+	return s.Path
+}
+
+// GetHost returns the value of Host.
+func (s *Route) GetHost() OptString {
+	return s.Host
+}
+
+// GetHosts returns the value of Hosts.
+func (s *Route) GetHosts() []string {
+	return s.Hosts
+}
+
+// GetMethods returns the value of Methods.
+func (s *Route) GetMethods() []HTTPMethod {
+	return s.Methods
+}
+
+// GetHttpsRedirectStatusCode returns the value of HttpsRedirectStatusCode.
+func (s *Route) GetHttpsRedirectStatusCode() OptRouteHttpsRedirectStatusCode {
+	return s.HttpsRedirectStatusCode
+}
+
+// GetRegexPriority returns the value of RegexPriority.
+func (s *Route) GetRegexPriority() OptInt {
+	return s.RegexPriority
+}
+
+// GetStripPath returns the value of StripPath.
+func (s *Route) GetStripPath() OptBool {
+	return s.StripPath
+}
+
+// GetPreserveHost returns the value of PreserveHost.
+func (s *Route) GetPreserveHost() OptBool {
+	return s.PreserveHost
+}
+
+// GetRequestBuffering returns the value of RequestBuffering.
+func (s *Route) GetRequestBuffering() OptBool {
+	return s.RequestBuffering
+}
+
+// GetResponseBuffering returns the value of ResponseBuffering.
+func (s *Route) GetResponseBuffering() OptBool {
+	return s.ResponseBuffering
+}
+
+// SetID sets the value of ID.
+func (s *Route) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Route) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Route) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetServiceId sets the value of ServiceId.
+func (s *Route) SetServiceId(val OptUUID) {
+	s.ServiceId = val
+}
+
+// SetName sets the value of Name.
+func (s *Route) SetName(val OptName) {
+	s.Name = val
+}
+
+// SetTags sets the value of Tags.
+func (s *Route) SetTags(val Tags) {
+	s.Tags = val
+}
+
+// SetProtocols sets the value of Protocols.
+func (s *Route) SetProtocols(val OptRouteProtocols) {
+	s.Protocols = val
+}
+
+// SetPath sets the value of Path.
+func (s *Route) SetPath(val OptString) {
+	s.Path = val
+}
+
+// SetHost sets the value of Host.
+func (s *Route) SetHost(val OptString) {
+	s.Host = val
+}
+
+// SetHosts sets the value of Hosts.
+func (s *Route) SetHosts(val []string) {
+	s.Hosts = val
+}
+
+// SetMethods sets the value of Methods.
+func (s *Route) SetMethods(val []HTTPMethod) {
+	s.Methods = val
+}
+
+// SetHttpsRedirectStatusCode sets the value of HttpsRedirectStatusCode.
+func (s *Route) SetHttpsRedirectStatusCode(val OptRouteHttpsRedirectStatusCode) {
+	s.HttpsRedirectStatusCode = val
+}
+
+// SetRegexPriority sets the value of RegexPriority.
+func (s *Route) SetRegexPriority(val OptInt) {
+	s.RegexPriority = val
+}
+
+// SetStripPath sets the value of StripPath.
+func (s *Route) SetStripPath(val OptBool) {
+	s.StripPath = val
+}
+
+// SetPreserveHost sets the value of PreserveHost.
+func (s *Route) SetPreserveHost(val OptBool) {
+	s.PreserveHost = val
+}
+
+// SetRequestBuffering sets the value of RequestBuffering.
+func (s *Route) SetRequestBuffering(val OptBool) {
+	s.RequestBuffering = val
+}
+
+// SetResponseBuffering sets the value of ResponseBuffering.
+func (s *Route) SetResponseBuffering(val OptBool) {
+	s.ResponseBuffering = val
+}
+
 // Ref: #/components/schemas/RouteAuthorization
 type RouteAuthorization struct {
 	// GroupのEntityを識別するためのID.
@@ -5058,7 +6660,7 @@ type RouteAuthorization struct {
 	// Group名 <br>
 	// Group名はUnicode文字、数字、ハイフン、アンダースコア、ピリオド、チルダのみ許可.
 	Name OptName `json:"name"`
-	// Groupの認可設定が有効かどうか.
+	// 対象の Group が許可されているかどうか.
 	Enabled OptBool `json:"enabled"`
 }
 
@@ -5105,6 +6707,34 @@ func (s *RouteAuthorizationDetail) GetOneOf() RouteAuthorizationDetailSum {
 // SetOneOf sets the value of OneOf.
 func (s *RouteAuthorizationDetail) SetOneOf(val RouteAuthorizationDetailSum) {
 	s.OneOf = val
+}
+
+// Ref: #/components/schemas/RouteAuthorizationDetailResponse
+type RouteAuthorizationDetailResponse struct {
+	// 認可設定が有効かどうか.
+	IsACLEnabled bool `json:"isACLEnabled"`
+	// 認可するGroupのリスト.
+	Groups []RouteAuthorization `json:"groups"`
+}
+
+// GetIsACLEnabled returns the value of IsACLEnabled.
+func (s *RouteAuthorizationDetailResponse) GetIsACLEnabled() bool {
+	return s.IsACLEnabled
+}
+
+// GetGroups returns the value of Groups.
+func (s *RouteAuthorizationDetailResponse) GetGroups() []RouteAuthorization {
+	return s.Groups
+}
+
+// SetIsACLEnabled sets the value of IsACLEnabled.
+func (s *RouteAuthorizationDetailResponse) SetIsACLEnabled(val bool) {
+	s.IsACLEnabled = val
+}
+
+// SetGroups sets the value of Groups.
+func (s *RouteAuthorizationDetailResponse) SetGroups(val []RouteAuthorization) {
+	s.Groups = val
 }
 
 // RouteAuthorizationDetailSum represents sum type.
@@ -5266,7 +6896,7 @@ type RouteDetail struct {
 	Host OptString `json:"host"`
 	// ホスト名<br>自動発行されたホストまたは設定したドメインを指定する<br>自動発行されたホストはService詳細照会APIで確認できる<br>作成したドメインはDomain一覧照会APIで確認できる.
 	Hosts []string `json:"hosts"`
-	// RouteにアクセスするためのHTTPメソッド<br>未指定の場合は全メソッドを許可.
+	// RouteにアクセスするためのHTTPメソッド<br>未指定の場合は全メソッドを許可<br>オブジェクトストレージ形式のサービスに紐づく場合は、GET・HEAD・OPTIONSメソッドのみを許可.
 	Methods []HTTPMethod `json:"methods"`
 	// HTTPSリダイレクト時のステータスコード.
 	HttpsRedirectStatusCode OptRouteDetailHttpsRedirectStatusCode `json:"httpsRedirectStatusCode"`
@@ -5279,8 +6909,8 @@ type RouteDetail struct {
 	// リクエストのバッファリングを有効にするかどうか.
 	RequestBuffering OptBool `json:"requestBuffering"`
 	// レスポンスのバッファリングを有効にするかどうか.
-	ResponseBuffering   OptBool `json:"responseBuffering"`
-	IpRestrictionConfig jx.Raw  `json:"ipRestrictionConfig"`
+	ResponseBuffering   OptBool                `json:"responseBuffering"`
+	IpRestrictionConfig OptIpRestrictionConfig `json:"ipRestrictionConfig"`
 }
 
 // GetID returns the value of ID.
@@ -5369,7 +6999,7 @@ func (s *RouteDetail) GetResponseBuffering() OptBool {
 }
 
 // GetIpRestrictionConfig returns the value of IpRestrictionConfig.
-func (s *RouteDetail) GetIpRestrictionConfig() jx.Raw {
+func (s *RouteDetail) GetIpRestrictionConfig() OptIpRestrictionConfig {
 	return s.IpRestrictionConfig
 }
 
@@ -5459,7 +7089,7 @@ func (s *RouteDetail) SetResponseBuffering(val OptBool) {
 }
 
 // SetIpRestrictionConfig sets the value of IpRestrictionConfig.
-func (s *RouteDetail) SetIpRestrictionConfig(val jx.Raw) {
+func (s *RouteDetail) SetIpRestrictionConfig(val OptIpRestrictionConfig) {
 	s.IpRestrictionConfig = val
 }
 
@@ -5536,6 +7166,79 @@ func (s *RouteDetailProtocols) UnmarshalText(data []byte) error {
 	}
 }
 
+// HTTPSリダイレクト時のステータスコード.
+type RouteHttpsRedirectStatusCode int
+
+const (
+	RouteHttpsRedirectStatusCode301 RouteHttpsRedirectStatusCode = 301
+	RouteHttpsRedirectStatusCode302 RouteHttpsRedirectStatusCode = 302
+	RouteHttpsRedirectStatusCode303 RouteHttpsRedirectStatusCode = 303
+	RouteHttpsRedirectStatusCode307 RouteHttpsRedirectStatusCode = 307
+	RouteHttpsRedirectStatusCode308 RouteHttpsRedirectStatusCode = 308
+	RouteHttpsRedirectStatusCode426 RouteHttpsRedirectStatusCode = 426
+)
+
+// AllValues returns all RouteHttpsRedirectStatusCode values.
+func (RouteHttpsRedirectStatusCode) AllValues() []RouteHttpsRedirectStatusCode {
+	return []RouteHttpsRedirectStatusCode{
+		RouteHttpsRedirectStatusCode301,
+		RouteHttpsRedirectStatusCode302,
+		RouteHttpsRedirectStatusCode303,
+		RouteHttpsRedirectStatusCode307,
+		RouteHttpsRedirectStatusCode308,
+		RouteHttpsRedirectStatusCode426,
+	}
+}
+
+// Routeにアクセスするためのプロトコル.
+type RouteProtocols string
+
+const (
+	RouteProtocolsHTTPHTTPS RouteProtocols = "http,https"
+	RouteProtocolsHTTP      RouteProtocols = "http"
+	RouteProtocolsHTTPS     RouteProtocols = "https"
+)
+
+// AllValues returns all RouteProtocols values.
+func (RouteProtocols) AllValues() []RouteProtocols {
+	return []RouteProtocols{
+		RouteProtocolsHTTPHTTPS,
+		RouteProtocolsHTTP,
+		RouteProtocolsHTTPS,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s RouteProtocols) MarshalText() ([]byte, error) {
+	switch s {
+	case RouteProtocolsHTTPHTTPS:
+		return []byte(s), nil
+	case RouteProtocolsHTTP:
+		return []byte(s), nil
+	case RouteProtocolsHTTPS:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *RouteProtocols) UnmarshalText(data []byte) error {
+	switch RouteProtocols(data) {
+	case RouteProtocolsHTTPHTTPS:
+		*s = RouteProtocolsHTTPHTTPS
+		return nil
+	case RouteProtocolsHTTP:
+		*s = RouteProtocolsHTTP
+		return nil
+	case RouteProtocolsHTTPS:
+		*s = RouteProtocolsHTTPS
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Merged schema.
 // Ref: #/components/schemas/ServiceDetail
 type ServiceDetail struct {
@@ -5553,7 +7256,7 @@ type ServiceDetail struct {
 	Protocol ServiceDetailProtocol `json:"protocol"`
 	// Serviceにアクセスするためのホスト名<br>ホスト名はドメイン名またはIPアドレスを指定する<br>プライベート/ループバックIPアドレスは指定できない.
 	Host string `json:"host"`
-	// Serviceにアクセスするためのパス<br>パスは/から始まり、半角英数字、アンダースコア、ハイフン、スラッシュのみを許可.
+	// Serviceにアクセスするためのパス<br>パスは/から始まり、半角英数字、アンダースコア、ハイフン、スラッシュ、一部記号（!.*'()-）のみを許可.
 	Path OptString `json:"path"`
 	// Serviceにアクセスするためのポート番号<br>省略した場合はプロトコルに応じたデフォルトポートが設定される.
 	Port OptInt `json:"port"`
@@ -5567,10 +7270,11 @@ type ServiceDetail struct {
 	ReadTimeout OptInt `json:"readTimeout"`
 	// 認証方式<br>未指定の場合は認証なし.
 	Authentication OptServiceDetailAuthentication `json:"authentication"`
-	Oidc           jx.Raw                         `json:"oidc"`
+	Oidc           OptOidcSummary                 `json:"oidc"`
 	// 自動発行したRouteのホスト.
-	RouteHost  OptString `json:"routeHost"`
-	CorsConfig jx.Raw    `json:"corsConfig"`
+	RouteHost           OptString              `json:"routeHost"`
+	CorsConfig          OptCorsConfig          `json:"corsConfig"`
+	ObjectStorageConfig OptObjectStorageConfig `json:"objectStorageConfig"`
 }
 
 // GetID returns the value of ID.
@@ -5644,7 +7348,7 @@ func (s *ServiceDetail) GetAuthentication() OptServiceDetailAuthentication {
 }
 
 // GetOidc returns the value of Oidc.
-func (s *ServiceDetail) GetOidc() jx.Raw {
+func (s *ServiceDetail) GetOidc() OptOidcSummary {
 	return s.Oidc
 }
 
@@ -5654,8 +7358,13 @@ func (s *ServiceDetail) GetRouteHost() OptString {
 }
 
 // GetCorsConfig returns the value of CorsConfig.
-func (s *ServiceDetail) GetCorsConfig() jx.Raw {
+func (s *ServiceDetail) GetCorsConfig() OptCorsConfig {
 	return s.CorsConfig
+}
+
+// GetObjectStorageConfig returns the value of ObjectStorageConfig.
+func (s *ServiceDetail) GetObjectStorageConfig() OptObjectStorageConfig {
+	return s.ObjectStorageConfig
 }
 
 // SetID sets the value of ID.
@@ -5729,7 +7438,7 @@ func (s *ServiceDetail) SetAuthentication(val OptServiceDetailAuthentication) {
 }
 
 // SetOidc sets the value of Oidc.
-func (s *ServiceDetail) SetOidc(val jx.Raw) {
+func (s *ServiceDetail) SetOidc(val OptOidcSummary) {
 	s.Oidc = val
 }
 
@@ -5739,8 +7448,13 @@ func (s *ServiceDetail) SetRouteHost(val OptString) {
 }
 
 // SetCorsConfig sets the value of CorsConfig.
-func (s *ServiceDetail) SetCorsConfig(val jx.Raw) {
+func (s *ServiceDetail) SetCorsConfig(val OptCorsConfig) {
 	s.CorsConfig = val
+}
+
+// SetObjectStorageConfig sets the value of ObjectStorageConfig.
+func (s *ServiceDetail) SetObjectStorageConfig(val OptObjectStorageConfig) {
+	s.ObjectStorageConfig = val
 }
 
 // 認証方式<br>未指定の場合は認証なし.
@@ -5848,6 +7562,747 @@ func (s *ServiceDetailProtocol) UnmarshalText(data []byte) error {
 	}
 }
 
+// Merged schema.
+// Ref: #/components/schemas/ServiceDetailRequest
+type ServiceDetailRequest struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	// Service名<br>Service名は半角英数字およびアンダースコアのみを許可.
+	Name Name `json:"name"`
+	// Serviceを検索するためのタグ.
+	Tags Tags `json:"tags"`
+	// Serviceにアクセスするためのプロトコル.
+	Protocol ServiceDetailRequestProtocol `json:"protocol"`
+	// Serviceにアクセスするためのホスト名<br>ホスト名はドメイン名またはIPアドレスを指定する<br>プライベート/ループバックIPアドレスは指定できない.
+	Host string `json:"host"`
+	// Serviceにアクセスするためのパス<br>パスは/から始まり、半角英数字、アンダースコア、ハイフン、スラッシュ、一部記号（!.*'()-）のみを許可.
+	Path OptString `json:"path"`
+	// Serviceにアクセスするためのポート番号<br>省略した場合はプロトコルに応じたデフォルトポートが設定される.
+	Port OptInt `json:"port"`
+	// リトライ回数.
+	Retries OptInt `json:"retries"`
+	// 接続タイムアウト秒数.
+	ConnectTimeout OptInt `json:"connectTimeout"`
+	// 書き込みタイムアウト秒数.
+	WriteTimeout OptInt `json:"writeTimeout"`
+	// 読み込みタイムアウト秒数.
+	ReadTimeout OptInt `json:"readTimeout"`
+	// 認証方式<br>未指定の場合は認証なし.
+	Authentication OptServiceDetailRequestAuthentication `json:"authentication"`
+	Oidc           OptOidcSummary                        `json:"oidc"`
+	// 自動発行したRouteのホスト.
+	RouteHost           OptString                  `json:"routeHost"`
+	CorsConfig          OptCorsConfig              `json:"corsConfig"`
+	ObjectStorageConfig OptObjectStorageConfig     `json:"objectStorageConfig"`
+	Subscription        ServiceSubscriptionRequest `json:"subscription"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceDetailRequest) GetID() OptUUID {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ServiceDetailRequest) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *ServiceDetailRequest) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetName returns the value of Name.
+func (s *ServiceDetailRequest) GetName() Name {
+	return s.Name
+}
+
+// GetTags returns the value of Tags.
+func (s *ServiceDetailRequest) GetTags() Tags {
+	return s.Tags
+}
+
+// GetProtocol returns the value of Protocol.
+func (s *ServiceDetailRequest) GetProtocol() ServiceDetailRequestProtocol {
+	return s.Protocol
+}
+
+// GetHost returns the value of Host.
+func (s *ServiceDetailRequest) GetHost() string {
+	return s.Host
+}
+
+// GetPath returns the value of Path.
+func (s *ServiceDetailRequest) GetPath() OptString {
+	return s.Path
+}
+
+// GetPort returns the value of Port.
+func (s *ServiceDetailRequest) GetPort() OptInt {
+	return s.Port
+}
+
+// GetRetries returns the value of Retries.
+func (s *ServiceDetailRequest) GetRetries() OptInt {
+	return s.Retries
+}
+
+// GetConnectTimeout returns the value of ConnectTimeout.
+func (s *ServiceDetailRequest) GetConnectTimeout() OptInt {
+	return s.ConnectTimeout
+}
+
+// GetWriteTimeout returns the value of WriteTimeout.
+func (s *ServiceDetailRequest) GetWriteTimeout() OptInt {
+	return s.WriteTimeout
+}
+
+// GetReadTimeout returns the value of ReadTimeout.
+func (s *ServiceDetailRequest) GetReadTimeout() OptInt {
+	return s.ReadTimeout
+}
+
+// GetAuthentication returns the value of Authentication.
+func (s *ServiceDetailRequest) GetAuthentication() OptServiceDetailRequestAuthentication {
+	return s.Authentication
+}
+
+// GetOidc returns the value of Oidc.
+func (s *ServiceDetailRequest) GetOidc() OptOidcSummary {
+	return s.Oidc
+}
+
+// GetRouteHost returns the value of RouteHost.
+func (s *ServiceDetailRequest) GetRouteHost() OptString {
+	return s.RouteHost
+}
+
+// GetCorsConfig returns the value of CorsConfig.
+func (s *ServiceDetailRequest) GetCorsConfig() OptCorsConfig {
+	return s.CorsConfig
+}
+
+// GetObjectStorageConfig returns the value of ObjectStorageConfig.
+func (s *ServiceDetailRequest) GetObjectStorageConfig() OptObjectStorageConfig {
+	return s.ObjectStorageConfig
+}
+
+// GetSubscription returns the value of Subscription.
+func (s *ServiceDetailRequest) GetSubscription() ServiceSubscriptionRequest {
+	return s.Subscription
+}
+
+// SetID sets the value of ID.
+func (s *ServiceDetailRequest) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ServiceDetailRequest) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *ServiceDetailRequest) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceDetailRequest) SetName(val Name) {
+	s.Name = val
+}
+
+// SetTags sets the value of Tags.
+func (s *ServiceDetailRequest) SetTags(val Tags) {
+	s.Tags = val
+}
+
+// SetProtocol sets the value of Protocol.
+func (s *ServiceDetailRequest) SetProtocol(val ServiceDetailRequestProtocol) {
+	s.Protocol = val
+}
+
+// SetHost sets the value of Host.
+func (s *ServiceDetailRequest) SetHost(val string) {
+	s.Host = val
+}
+
+// SetPath sets the value of Path.
+func (s *ServiceDetailRequest) SetPath(val OptString) {
+	s.Path = val
+}
+
+// SetPort sets the value of Port.
+func (s *ServiceDetailRequest) SetPort(val OptInt) {
+	s.Port = val
+}
+
+// SetRetries sets the value of Retries.
+func (s *ServiceDetailRequest) SetRetries(val OptInt) {
+	s.Retries = val
+}
+
+// SetConnectTimeout sets the value of ConnectTimeout.
+func (s *ServiceDetailRequest) SetConnectTimeout(val OptInt) {
+	s.ConnectTimeout = val
+}
+
+// SetWriteTimeout sets the value of WriteTimeout.
+func (s *ServiceDetailRequest) SetWriteTimeout(val OptInt) {
+	s.WriteTimeout = val
+}
+
+// SetReadTimeout sets the value of ReadTimeout.
+func (s *ServiceDetailRequest) SetReadTimeout(val OptInt) {
+	s.ReadTimeout = val
+}
+
+// SetAuthentication sets the value of Authentication.
+func (s *ServiceDetailRequest) SetAuthentication(val OptServiceDetailRequestAuthentication) {
+	s.Authentication = val
+}
+
+// SetOidc sets the value of Oidc.
+func (s *ServiceDetailRequest) SetOidc(val OptOidcSummary) {
+	s.Oidc = val
+}
+
+// SetRouteHost sets the value of RouteHost.
+func (s *ServiceDetailRequest) SetRouteHost(val OptString) {
+	s.RouteHost = val
+}
+
+// SetCorsConfig sets the value of CorsConfig.
+func (s *ServiceDetailRequest) SetCorsConfig(val OptCorsConfig) {
+	s.CorsConfig = val
+}
+
+// SetObjectStorageConfig sets the value of ObjectStorageConfig.
+func (s *ServiceDetailRequest) SetObjectStorageConfig(val OptObjectStorageConfig) {
+	s.ObjectStorageConfig = val
+}
+
+// SetSubscription sets the value of Subscription.
+func (s *ServiceDetailRequest) SetSubscription(val ServiceSubscriptionRequest) {
+	s.Subscription = val
+}
+
+// 認証方式<br>未指定の場合は認証なし.
+type ServiceDetailRequestAuthentication string
+
+const (
+	ServiceDetailRequestAuthenticationNone  ServiceDetailRequestAuthentication = "none"
+	ServiceDetailRequestAuthenticationBasic ServiceDetailRequestAuthentication = "basic"
+	ServiceDetailRequestAuthenticationHmac  ServiceDetailRequestAuthentication = "hmac"
+	ServiceDetailRequestAuthenticationJwt   ServiceDetailRequestAuthentication = "jwt"
+	ServiceDetailRequestAuthenticationOidc  ServiceDetailRequestAuthentication = "oidc"
+)
+
+// AllValues returns all ServiceDetailRequestAuthentication values.
+func (ServiceDetailRequestAuthentication) AllValues() []ServiceDetailRequestAuthentication {
+	return []ServiceDetailRequestAuthentication{
+		ServiceDetailRequestAuthenticationNone,
+		ServiceDetailRequestAuthenticationBasic,
+		ServiceDetailRequestAuthenticationHmac,
+		ServiceDetailRequestAuthenticationJwt,
+		ServiceDetailRequestAuthenticationOidc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceDetailRequestAuthentication) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceDetailRequestAuthenticationNone:
+		return []byte(s), nil
+	case ServiceDetailRequestAuthenticationBasic:
+		return []byte(s), nil
+	case ServiceDetailRequestAuthenticationHmac:
+		return []byte(s), nil
+	case ServiceDetailRequestAuthenticationJwt:
+		return []byte(s), nil
+	case ServiceDetailRequestAuthenticationOidc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceDetailRequestAuthentication) UnmarshalText(data []byte) error {
+	switch ServiceDetailRequestAuthentication(data) {
+	case ServiceDetailRequestAuthenticationNone:
+		*s = ServiceDetailRequestAuthenticationNone
+		return nil
+	case ServiceDetailRequestAuthenticationBasic:
+		*s = ServiceDetailRequestAuthenticationBasic
+		return nil
+	case ServiceDetailRequestAuthenticationHmac:
+		*s = ServiceDetailRequestAuthenticationHmac
+		return nil
+	case ServiceDetailRequestAuthenticationJwt:
+		*s = ServiceDetailRequestAuthenticationJwt
+		return nil
+	case ServiceDetailRequestAuthenticationOidc:
+		*s = ServiceDetailRequestAuthenticationOidc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Serviceにアクセスするためのプロトコル.
+type ServiceDetailRequestProtocol string
+
+const (
+	ServiceDetailRequestProtocolHTTP  ServiceDetailRequestProtocol = "http"
+	ServiceDetailRequestProtocolHTTPS ServiceDetailRequestProtocol = "https"
+)
+
+// AllValues returns all ServiceDetailRequestProtocol values.
+func (ServiceDetailRequestProtocol) AllValues() []ServiceDetailRequestProtocol {
+	return []ServiceDetailRequestProtocol{
+		ServiceDetailRequestProtocolHTTP,
+		ServiceDetailRequestProtocolHTTPS,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceDetailRequestProtocol) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceDetailRequestProtocolHTTP:
+		return []byte(s), nil
+	case ServiceDetailRequestProtocolHTTPS:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceDetailRequestProtocol) UnmarshalText(data []byte) error {
+	switch ServiceDetailRequestProtocol(data) {
+	case ServiceDetailRequestProtocolHTTP:
+		*s = ServiceDetailRequestProtocolHTTP
+		return nil
+	case ServiceDetailRequestProtocolHTTPS:
+		*s = ServiceDetailRequestProtocolHTTPS
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ServiceDetailResponse
+type ServiceDetailResponse struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	// Service名<br>Service名は半角英数字およびアンダースコアのみを許可.
+	Name Name `json:"name"`
+	// Serviceを検索するためのタグ.
+	Tags Tags `json:"tags"`
+	// Serviceにアクセスするためのプロトコル.
+	Protocol ServiceDetailResponseProtocol `json:"protocol"`
+	// Serviceにアクセスするためのホスト名<br>ホスト名はドメイン名またはIPアドレスを指定する<br>プライベート/ループバックIPアドレスは指定できない.
+	Host string `json:"host"`
+	// Serviceにアクセスするためのパス<br>パスは/から始まり、半角英数字、アンダースコア、ハイフン、スラッシュ、一部記号（!.*'()-）のみを許可.
+	Path OptString `json:"path"`
+	// Serviceにアクセスするためのポート番号<br>省略した場合はプロトコルに応じたデフォルトポートが設定される.
+	Port OptInt `json:"port"`
+	// リトライ回数.
+	Retries OptInt `json:"retries"`
+	// 接続タイムアウト秒数.
+	ConnectTimeout OptInt `json:"connectTimeout"`
+	// 書き込みタイムアウト秒数.
+	WriteTimeout OptInt `json:"writeTimeout"`
+	// 読み込みタイムアウト秒数.
+	ReadTimeout OptInt `json:"readTimeout"`
+	// 認証方式<br>未指定の場合は認証なし.
+	Authentication OptServiceDetailResponseAuthentication `json:"authentication"`
+	Oidc           OptOidcSummary                         `json:"oidc"`
+	// 自動発行したRouteのホスト.
+	RouteHost           OptString                   `json:"routeHost"`
+	CorsConfig          OptCorsConfig               `json:"corsConfig"`
+	ObjectStorageConfig OptObjectStorageConfig      `json:"objectStorageConfig"`
+	Subscription        ServiceSubscriptionResponse `json:"subscription"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceDetailResponse) GetID() OptUUID {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ServiceDetailResponse) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *ServiceDetailResponse) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetName returns the value of Name.
+func (s *ServiceDetailResponse) GetName() Name {
+	return s.Name
+}
+
+// GetTags returns the value of Tags.
+func (s *ServiceDetailResponse) GetTags() Tags {
+	return s.Tags
+}
+
+// GetProtocol returns the value of Protocol.
+func (s *ServiceDetailResponse) GetProtocol() ServiceDetailResponseProtocol {
+	return s.Protocol
+}
+
+// GetHost returns the value of Host.
+func (s *ServiceDetailResponse) GetHost() string {
+	return s.Host
+}
+
+// GetPath returns the value of Path.
+func (s *ServiceDetailResponse) GetPath() OptString {
+	return s.Path
+}
+
+// GetPort returns the value of Port.
+func (s *ServiceDetailResponse) GetPort() OptInt {
+	return s.Port
+}
+
+// GetRetries returns the value of Retries.
+func (s *ServiceDetailResponse) GetRetries() OptInt {
+	return s.Retries
+}
+
+// GetConnectTimeout returns the value of ConnectTimeout.
+func (s *ServiceDetailResponse) GetConnectTimeout() OptInt {
+	return s.ConnectTimeout
+}
+
+// GetWriteTimeout returns the value of WriteTimeout.
+func (s *ServiceDetailResponse) GetWriteTimeout() OptInt {
+	return s.WriteTimeout
+}
+
+// GetReadTimeout returns the value of ReadTimeout.
+func (s *ServiceDetailResponse) GetReadTimeout() OptInt {
+	return s.ReadTimeout
+}
+
+// GetAuthentication returns the value of Authentication.
+func (s *ServiceDetailResponse) GetAuthentication() OptServiceDetailResponseAuthentication {
+	return s.Authentication
+}
+
+// GetOidc returns the value of Oidc.
+func (s *ServiceDetailResponse) GetOidc() OptOidcSummary {
+	return s.Oidc
+}
+
+// GetRouteHost returns the value of RouteHost.
+func (s *ServiceDetailResponse) GetRouteHost() OptString {
+	return s.RouteHost
+}
+
+// GetCorsConfig returns the value of CorsConfig.
+func (s *ServiceDetailResponse) GetCorsConfig() OptCorsConfig {
+	return s.CorsConfig
+}
+
+// GetObjectStorageConfig returns the value of ObjectStorageConfig.
+func (s *ServiceDetailResponse) GetObjectStorageConfig() OptObjectStorageConfig {
+	return s.ObjectStorageConfig
+}
+
+// GetSubscription returns the value of Subscription.
+func (s *ServiceDetailResponse) GetSubscription() ServiceSubscriptionResponse {
+	return s.Subscription
+}
+
+// SetID sets the value of ID.
+func (s *ServiceDetailResponse) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ServiceDetailResponse) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *ServiceDetailResponse) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceDetailResponse) SetName(val Name) {
+	s.Name = val
+}
+
+// SetTags sets the value of Tags.
+func (s *ServiceDetailResponse) SetTags(val Tags) {
+	s.Tags = val
+}
+
+// SetProtocol sets the value of Protocol.
+func (s *ServiceDetailResponse) SetProtocol(val ServiceDetailResponseProtocol) {
+	s.Protocol = val
+}
+
+// SetHost sets the value of Host.
+func (s *ServiceDetailResponse) SetHost(val string) {
+	s.Host = val
+}
+
+// SetPath sets the value of Path.
+func (s *ServiceDetailResponse) SetPath(val OptString) {
+	s.Path = val
+}
+
+// SetPort sets the value of Port.
+func (s *ServiceDetailResponse) SetPort(val OptInt) {
+	s.Port = val
+}
+
+// SetRetries sets the value of Retries.
+func (s *ServiceDetailResponse) SetRetries(val OptInt) {
+	s.Retries = val
+}
+
+// SetConnectTimeout sets the value of ConnectTimeout.
+func (s *ServiceDetailResponse) SetConnectTimeout(val OptInt) {
+	s.ConnectTimeout = val
+}
+
+// SetWriteTimeout sets the value of WriteTimeout.
+func (s *ServiceDetailResponse) SetWriteTimeout(val OptInt) {
+	s.WriteTimeout = val
+}
+
+// SetReadTimeout sets the value of ReadTimeout.
+func (s *ServiceDetailResponse) SetReadTimeout(val OptInt) {
+	s.ReadTimeout = val
+}
+
+// SetAuthentication sets the value of Authentication.
+func (s *ServiceDetailResponse) SetAuthentication(val OptServiceDetailResponseAuthentication) {
+	s.Authentication = val
+}
+
+// SetOidc sets the value of Oidc.
+func (s *ServiceDetailResponse) SetOidc(val OptOidcSummary) {
+	s.Oidc = val
+}
+
+// SetRouteHost sets the value of RouteHost.
+func (s *ServiceDetailResponse) SetRouteHost(val OptString) {
+	s.RouteHost = val
+}
+
+// SetCorsConfig sets the value of CorsConfig.
+func (s *ServiceDetailResponse) SetCorsConfig(val OptCorsConfig) {
+	s.CorsConfig = val
+}
+
+// SetObjectStorageConfig sets the value of ObjectStorageConfig.
+func (s *ServiceDetailResponse) SetObjectStorageConfig(val OptObjectStorageConfig) {
+	s.ObjectStorageConfig = val
+}
+
+// SetSubscription sets the value of Subscription.
+func (s *ServiceDetailResponse) SetSubscription(val ServiceSubscriptionResponse) {
+	s.Subscription = val
+}
+
+// 認証方式<br>未指定の場合は認証なし.
+type ServiceDetailResponseAuthentication string
+
+const (
+	ServiceDetailResponseAuthenticationNone  ServiceDetailResponseAuthentication = "none"
+	ServiceDetailResponseAuthenticationBasic ServiceDetailResponseAuthentication = "basic"
+	ServiceDetailResponseAuthenticationHmac  ServiceDetailResponseAuthentication = "hmac"
+	ServiceDetailResponseAuthenticationJwt   ServiceDetailResponseAuthentication = "jwt"
+	ServiceDetailResponseAuthenticationOidc  ServiceDetailResponseAuthentication = "oidc"
+)
+
+// AllValues returns all ServiceDetailResponseAuthentication values.
+func (ServiceDetailResponseAuthentication) AllValues() []ServiceDetailResponseAuthentication {
+	return []ServiceDetailResponseAuthentication{
+		ServiceDetailResponseAuthenticationNone,
+		ServiceDetailResponseAuthenticationBasic,
+		ServiceDetailResponseAuthenticationHmac,
+		ServiceDetailResponseAuthenticationJwt,
+		ServiceDetailResponseAuthenticationOidc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceDetailResponseAuthentication) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceDetailResponseAuthenticationNone:
+		return []byte(s), nil
+	case ServiceDetailResponseAuthenticationBasic:
+		return []byte(s), nil
+	case ServiceDetailResponseAuthenticationHmac:
+		return []byte(s), nil
+	case ServiceDetailResponseAuthenticationJwt:
+		return []byte(s), nil
+	case ServiceDetailResponseAuthenticationOidc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceDetailResponseAuthentication) UnmarshalText(data []byte) error {
+	switch ServiceDetailResponseAuthentication(data) {
+	case ServiceDetailResponseAuthenticationNone:
+		*s = ServiceDetailResponseAuthenticationNone
+		return nil
+	case ServiceDetailResponseAuthenticationBasic:
+		*s = ServiceDetailResponseAuthenticationBasic
+		return nil
+	case ServiceDetailResponseAuthenticationHmac:
+		*s = ServiceDetailResponseAuthenticationHmac
+		return nil
+	case ServiceDetailResponseAuthenticationJwt:
+		*s = ServiceDetailResponseAuthenticationJwt
+		return nil
+	case ServiceDetailResponseAuthenticationOidc:
+		*s = ServiceDetailResponseAuthenticationOidc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Serviceにアクセスするためのプロトコル.
+type ServiceDetailResponseProtocol string
+
+const (
+	ServiceDetailResponseProtocolHTTP  ServiceDetailResponseProtocol = "http"
+	ServiceDetailResponseProtocolHTTPS ServiceDetailResponseProtocol = "https"
+)
+
+// AllValues returns all ServiceDetailResponseProtocol values.
+func (ServiceDetailResponseProtocol) AllValues() []ServiceDetailResponseProtocol {
+	return []ServiceDetailResponseProtocol{
+		ServiceDetailResponseProtocolHTTP,
+		ServiceDetailResponseProtocolHTTPS,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceDetailResponseProtocol) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceDetailResponseProtocolHTTP:
+		return []byte(s), nil
+	case ServiceDetailResponseProtocolHTTPS:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceDetailResponseProtocol) UnmarshalText(data []byte) error {
+	switch ServiceDetailResponseProtocol(data) {
+	case ServiceDetailResponseProtocolHTTP:
+		*s = ServiceDetailResponseProtocolHTTP
+		return nil
+	case ServiceDetailResponseProtocolHTTPS:
+		*s = ServiceDetailResponseProtocolHTTPS
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/ServiceSubscriptionRequest
+type ServiceSubscriptionRequest struct {
+	// サブスクリプションID.
+	ID uuid.UUID `json:"id"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceSubscriptionRequest) GetID() uuid.UUID {
+	return s.ID
+}
+
+// SetID sets the value of ID.
+func (s *ServiceSubscriptionRequest) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// Ref: #/components/schemas/ServiceSubscriptionResponse
+type ServiceSubscriptionResponse struct {
+	// サブスクリプションID.
+	ID uuid.UUID `json:"id"`
+	// サブスクリプション名.
+	Name string `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceSubscriptionResponse) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceSubscriptionResponse) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *ServiceSubscriptionResponse) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceSubscriptionResponse) SetName(val string) {
+	s.Name = val
+}
+
+// Service要約情報.
+// Ref: #/components/schemas/ServiceSummary
+type ServiceSummary struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// Service名<br>Service名は半角英数字およびアンダースコアのみを許可.
+	Name OptName `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceSummary) GetID() OptUUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceSummary) GetName() OptName {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *ServiceSummary) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceSummary) SetName(val OptName) {
+	s.Name = val
+}
+
 type SubscribeBadRequest ErrorSchema
 
 func (*SubscribeBadRequest) subscribeRes() {}
@@ -5865,71 +8320,389 @@ type SubscribeUnauthorized ErrorSchema
 
 func (*SubscribeUnauthorized) subscribeRes() {}
 
-// Ref: #/components/schemas/Subscribed
-type Subscribed struct {
-	// 契約時にとるSubscriptionStatusの状態.
-	Status OptSubscribedStatus `json:"status"`
-	// アカウントを識別するためのID.
+// Merged schema.
+// Ref: #/components/schemas/Subscription
+type Subscription struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	// ユーザ識別用契約名.
+	Name OptName `json:"name"`
+	// プランID.
+	PlanId OptUUID `json:"planId"`
+	// 契約を識別するためのID.
 	ResourceId OptInt64 `json:"resourceId"`
-	Plan       OptPlan  `json:"plan"`
+	// 今月のリクエスト累計数.
+	MonthlyRequest OptInt `json:"monthlyRequest"`
+	// 契約に紐づくServiceの情報.
+	Service OptSubscriptionService `json:"service"`
 }
 
-// GetStatus returns the value of Status.
-func (s *Subscribed) GetStatus() OptSubscribedStatus {
-	return s.Status
+// GetID returns the value of ID.
+func (s *Subscription) GetID() OptUUID {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Subscription) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Subscription) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetName returns the value of Name.
+func (s *Subscription) GetName() OptName {
+	return s.Name
+}
+
+// GetPlanId returns the value of PlanId.
+func (s *Subscription) GetPlanId() OptUUID {
+	return s.PlanId
 }
 
 // GetResourceId returns the value of ResourceId.
-func (s *Subscribed) GetResourceId() OptInt64 {
+func (s *Subscription) GetResourceId() OptInt64 {
 	return s.ResourceId
 }
 
-// GetPlan returns the value of Plan.
-func (s *Subscribed) GetPlan() OptPlan {
-	return s.Plan
+// GetMonthlyRequest returns the value of MonthlyRequest.
+func (s *Subscription) GetMonthlyRequest() OptInt {
+	return s.MonthlyRequest
 }
 
-// SetStatus sets the value of Status.
-func (s *Subscribed) SetStatus(val OptSubscribedStatus) {
-	s.Status = val
+// GetService returns the value of Service.
+func (s *Subscription) GetService() OptSubscriptionService {
+	return s.Service
+}
+
+// SetID sets the value of ID.
+func (s *Subscription) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Subscription) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Subscription) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *Subscription) SetName(val OptName) {
+	s.Name = val
+}
+
+// SetPlanId sets the value of PlanId.
+func (s *Subscription) SetPlanId(val OptUUID) {
+	s.PlanId = val
 }
 
 // SetResourceId sets the value of ResourceId.
-func (s *Subscribed) SetResourceId(val OptInt64) {
+func (s *Subscription) SetResourceId(val OptInt64) {
 	s.ResourceId = val
 }
 
+// SetMonthlyRequest sets the value of MonthlyRequest.
+func (s *Subscription) SetMonthlyRequest(val OptInt) {
+	s.MonthlyRequest = val
+}
+
+// SetService sets the value of Service.
+func (s *Subscription) SetService(val OptSubscriptionService) {
+	s.Service = val
+}
+
+// 契約情報.
+// Ref: #/components/schemas/SubscriptionCreate
+type SubscriptionCreate struct {
+	// プランID.
+	PlanId uuid.UUID `json:"planId"`
+	// 契約名.
+	Name string `json:"name"`
+}
+
+// GetPlanId returns the value of PlanId.
+func (s *SubscriptionCreate) GetPlanId() uuid.UUID {
+	return s.PlanId
+}
+
+// GetName returns the value of Name.
+func (s *SubscriptionCreate) GetName() string {
+	return s.Name
+}
+
+// SetPlanId sets the value of PlanId.
+func (s *SubscriptionCreate) SetPlanId(val uuid.UUID) {
+	s.PlanId = val
+}
+
+// SetName sets the value of Name.
+func (s *SubscriptionCreate) SetName(val string) {
+	s.Name = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/SubscriptionDetailResponse
+type SubscriptionDetailResponse struct {
+	// Entityを識別するためのID.
+	ID OptUUID `json:"id"`
+	// 作成日時.
+	CreatedAt OptDateTime `json:"createdAt"`
+	// 更新日時.
+	UpdatedAt OptDateTime `json:"updatedAt"`
+	// ユーザ識別用契約名.
+	Name OptName `json:"name"`
+	// 契約を一意に識別するリソースID.
+	ResourceId OptInt64 `json:"resourceId"`
+	// 今月のリクエスト累計数.
+	MonthlyRequest OptInt `json:"monthlyRequest"`
+	// 契約に紐づくServiceの情報.
+	Service OptSubscriptionService      `json:"service"`
+	Plan    OptSubscriptionPlanResponse `json:"plan"`
+}
+
+// GetID returns the value of ID.
+func (s *SubscriptionDetailResponse) GetID() OptUUID {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *SubscriptionDetailResponse) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *SubscriptionDetailResponse) GetUpdatedAt() OptDateTime {
+	return s.UpdatedAt
+}
+
+// GetName returns the value of Name.
+func (s *SubscriptionDetailResponse) GetName() OptName {
+	return s.Name
+}
+
+// GetResourceId returns the value of ResourceId.
+func (s *SubscriptionDetailResponse) GetResourceId() OptInt64 {
+	return s.ResourceId
+}
+
+// GetMonthlyRequest returns the value of MonthlyRequest.
+func (s *SubscriptionDetailResponse) GetMonthlyRequest() OptInt {
+	return s.MonthlyRequest
+}
+
+// GetService returns the value of Service.
+func (s *SubscriptionDetailResponse) GetService() OptSubscriptionService {
+	return s.Service
+}
+
+// GetPlan returns the value of Plan.
+func (s *SubscriptionDetailResponse) GetPlan() OptSubscriptionPlanResponse {
+	return s.Plan
+}
+
+// SetID sets the value of ID.
+func (s *SubscriptionDetailResponse) SetID(val OptUUID) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *SubscriptionDetailResponse) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *SubscriptionDetailResponse) SetUpdatedAt(val OptDateTime) {
+	s.UpdatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *SubscriptionDetailResponse) SetName(val OptName) {
+	s.Name = val
+}
+
+// SetResourceId sets the value of ResourceId.
+func (s *SubscriptionDetailResponse) SetResourceId(val OptInt64) {
+	s.ResourceId = val
+}
+
+// SetMonthlyRequest sets the value of MonthlyRequest.
+func (s *SubscriptionDetailResponse) SetMonthlyRequest(val OptInt) {
+	s.MonthlyRequest = val
+}
+
+// SetService sets the value of Service.
+func (s *SubscriptionDetailResponse) SetService(val OptSubscriptionService) {
+	s.Service = val
+}
+
 // SetPlan sets the value of Plan.
-func (s *Subscribed) SetPlan(val OptPlan) {
+func (s *SubscriptionDetailResponse) SetPlan(val OptSubscriptionPlanResponse) {
 	s.Plan = val
 }
 
-// 契約時にとるSubscriptionStatusの状態.
-type SubscribedStatus string
+// Ref: #/components/schemas/SubscriptionList
+type SubscriptionList struct {
+	Subscriptions []Subscription `json:"subscriptions"`
+	// 最大契約数.
+	MaxSubscription OptInt `json:"maxSubscription"`
+}
+
+// GetSubscriptions returns the value of Subscriptions.
+func (s *SubscriptionList) GetSubscriptions() []Subscription {
+	return s.Subscriptions
+}
+
+// GetMaxSubscription returns the value of MaxSubscription.
+func (s *SubscriptionList) GetMaxSubscription() OptInt {
+	return s.MaxSubscription
+}
+
+// SetSubscriptions sets the value of Subscriptions.
+func (s *SubscriptionList) SetSubscriptions(val []Subscription) {
+	s.Subscriptions = val
+}
+
+// SetMaxSubscription sets the value of MaxSubscription.
+func (s *SubscriptionList) SetMaxSubscription(val OptInt) {
+	s.MaxSubscription = val
+}
+
+// 料金プラン.
+// Ref: #/components/schemas/SubscriptionPlanResponse
+type SubscriptionPlanResponse struct {
+	// プランID.
+	PlanID OptUUID `json:"planID"`
+	// プラン名.
+	PlanName OptString `json:"planName"`
+	// 価格.
+	Price OptString `json:"price"`
+	// 作成できるServiceの最大数.
+	MaxServices OptInt `json:"maxServices"`
+	// 追加料金なしで利用できるリクエスト数.
+	MaxRequests OptInt `json:"maxRequests"`
+	// MaxRequestsの上限が適用される期間の単位.
+	MaxRequestsUnit OptSubscriptionPlanResponseMaxRequestsUnit `json:"maxRequestsUnit"`
+	Overage         OptOverage                                 `json:"overage"`
+}
+
+// GetPlanID returns the value of PlanID.
+func (s *SubscriptionPlanResponse) GetPlanID() OptUUID {
+	return s.PlanID
+}
+
+// GetPlanName returns the value of PlanName.
+func (s *SubscriptionPlanResponse) GetPlanName() OptString {
+	return s.PlanName
+}
+
+// GetPrice returns the value of Price.
+func (s *SubscriptionPlanResponse) GetPrice() OptString {
+	return s.Price
+}
+
+// GetMaxServices returns the value of MaxServices.
+func (s *SubscriptionPlanResponse) GetMaxServices() OptInt {
+	return s.MaxServices
+}
+
+// GetMaxRequests returns the value of MaxRequests.
+func (s *SubscriptionPlanResponse) GetMaxRequests() OptInt {
+	return s.MaxRequests
+}
+
+// GetMaxRequestsUnit returns the value of MaxRequestsUnit.
+func (s *SubscriptionPlanResponse) GetMaxRequestsUnit() OptSubscriptionPlanResponseMaxRequestsUnit {
+	return s.MaxRequestsUnit
+}
+
+// GetOverage returns the value of Overage.
+func (s *SubscriptionPlanResponse) GetOverage() OptOverage {
+	return s.Overage
+}
+
+// SetPlanID sets the value of PlanID.
+func (s *SubscriptionPlanResponse) SetPlanID(val OptUUID) {
+	s.PlanID = val
+}
+
+// SetPlanName sets the value of PlanName.
+func (s *SubscriptionPlanResponse) SetPlanName(val OptString) {
+	s.PlanName = val
+}
+
+// SetPrice sets the value of Price.
+func (s *SubscriptionPlanResponse) SetPrice(val OptString) {
+	s.Price = val
+}
+
+// SetMaxServices sets the value of MaxServices.
+func (s *SubscriptionPlanResponse) SetMaxServices(val OptInt) {
+	s.MaxServices = val
+}
+
+// SetMaxRequests sets the value of MaxRequests.
+func (s *SubscriptionPlanResponse) SetMaxRequests(val OptInt) {
+	s.MaxRequests = val
+}
+
+// SetMaxRequestsUnit sets the value of MaxRequestsUnit.
+func (s *SubscriptionPlanResponse) SetMaxRequestsUnit(val OptSubscriptionPlanResponseMaxRequestsUnit) {
+	s.MaxRequestsUnit = val
+}
+
+// SetOverage sets the value of Overage.
+func (s *SubscriptionPlanResponse) SetOverage(val OptOverage) {
+	s.Overage = val
+}
+
+// MaxRequestsの上限が適用される期間の単位.
+type SubscriptionPlanResponseMaxRequestsUnit string
 
 const (
-	SubscribedStatusActive   SubscribedStatus = "active"
-	SubscribedStatusInactive SubscribedStatus = "inactive"
-	SubscribedStatusExpired  SubscribedStatus = "expired"
+	SubscriptionPlanResponseMaxRequestsUnitSecond SubscriptionPlanResponseMaxRequestsUnit = "second"
+	SubscriptionPlanResponseMaxRequestsUnitMinute SubscriptionPlanResponseMaxRequestsUnit = "minute"
+	SubscriptionPlanResponseMaxRequestsUnitHour   SubscriptionPlanResponseMaxRequestsUnit = "hour"
+	SubscriptionPlanResponseMaxRequestsUnitDay    SubscriptionPlanResponseMaxRequestsUnit = "day"
+	SubscriptionPlanResponseMaxRequestsUnitMonth  SubscriptionPlanResponseMaxRequestsUnit = "month"
+	SubscriptionPlanResponseMaxRequestsUnitYear   SubscriptionPlanResponseMaxRequestsUnit = "year"
 )
 
-// AllValues returns all SubscribedStatus values.
-func (SubscribedStatus) AllValues() []SubscribedStatus {
-	return []SubscribedStatus{
-		SubscribedStatusActive,
-		SubscribedStatusInactive,
-		SubscribedStatusExpired,
+// AllValues returns all SubscriptionPlanResponseMaxRequestsUnit values.
+func (SubscriptionPlanResponseMaxRequestsUnit) AllValues() []SubscriptionPlanResponseMaxRequestsUnit {
+	return []SubscriptionPlanResponseMaxRequestsUnit{
+		SubscriptionPlanResponseMaxRequestsUnitSecond,
+		SubscriptionPlanResponseMaxRequestsUnitMinute,
+		SubscriptionPlanResponseMaxRequestsUnitHour,
+		SubscriptionPlanResponseMaxRequestsUnitDay,
+		SubscriptionPlanResponseMaxRequestsUnitMonth,
+		SubscriptionPlanResponseMaxRequestsUnitYear,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s SubscribedStatus) MarshalText() ([]byte, error) {
+func (s SubscriptionPlanResponseMaxRequestsUnit) MarshalText() ([]byte, error) {
 	switch s {
-	case SubscribedStatusActive:
+	case SubscriptionPlanResponseMaxRequestsUnitSecond:
 		return []byte(s), nil
-	case SubscribedStatusInactive:
+	case SubscriptionPlanResponseMaxRequestsUnitMinute:
 		return []byte(s), nil
-	case SubscribedStatusExpired:
+	case SubscriptionPlanResponseMaxRequestsUnitHour:
+		return []byte(s), nil
+	case SubscriptionPlanResponseMaxRequestsUnitDay:
+		return []byte(s), nil
+	case SubscriptionPlanResponseMaxRequestsUnitMonth:
+		return []byte(s), nil
+	case SubscriptionPlanResponseMaxRequestsUnitYear:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -5937,119 +8710,73 @@ func (s SubscribedStatus) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *SubscribedStatus) UnmarshalText(data []byte) error {
-	switch SubscribedStatus(data) {
-	case SubscribedStatusActive:
-		*s = SubscribedStatusActive
+func (s *SubscriptionPlanResponseMaxRequestsUnit) UnmarshalText(data []byte) error {
+	switch SubscriptionPlanResponseMaxRequestsUnit(data) {
+	case SubscriptionPlanResponseMaxRequestsUnitSecond:
+		*s = SubscriptionPlanResponseMaxRequestsUnitSecond
 		return nil
-	case SubscribedStatusInactive:
-		*s = SubscribedStatusInactive
+	case SubscriptionPlanResponseMaxRequestsUnitMinute:
+		*s = SubscriptionPlanResponseMaxRequestsUnitMinute
 		return nil
-	case SubscribedStatusExpired:
-		*s = SubscribedStatusExpired
+	case SubscriptionPlanResponseMaxRequestsUnitHour:
+		*s = SubscriptionPlanResponseMaxRequestsUnitHour
+		return nil
+	case SubscriptionPlanResponseMaxRequestsUnitDay:
+		*s = SubscriptionPlanResponseMaxRequestsUnitDay
+		return nil
+	case SubscriptionPlanResponseMaxRequestsUnitMonth:
+		*s = SubscriptionPlanResponseMaxRequestsUnitMonth
+		return nil
+	case SubscriptionPlanResponseMaxRequestsUnitYear:
+		*s = SubscriptionPlanResponseMaxRequestsUnitYear
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
 
-// 契約情報.
-// Ref: #/components/schemas/SubscriptionOption
-type SubscriptionOption struct {
-	// プランID.
-	PlanId OptUUID `json:"planId"`
+// Ref: #/components/schemas/SubscriptionService
+type SubscriptionService struct {
+	// 現在契約と紐づいているServiceのID.
+	ID uuid.UUID `json:"id"`
+	// 現在契約と紐づいているService名.
+	Name string `json:"name"`
 }
 
-// GetPlanId returns the value of PlanId.
-func (s *SubscriptionOption) GetPlanId() OptUUID {
-	return s.PlanId
+// GetID returns the value of ID.
+func (s *SubscriptionService) GetID() uuid.UUID {
+	return s.ID
 }
 
-// SetPlanId sets the value of PlanId.
-func (s *SubscriptionOption) SetPlanId(val OptUUID) {
-	s.PlanId = val
+// GetName returns the value of Name.
+func (s *SubscriptionService) GetName() string {
+	return s.Name
 }
 
-// 契約状態.
-// Ref: #/components/schemas/SubscriptionStatus
-type SubscriptionStatus struct {
-	OneOf SubscriptionStatusSum
+// SetID sets the value of ID.
+func (s *SubscriptionService) SetID(val uuid.UUID) {
+	s.ID = val
 }
 
-// GetOneOf returns the value of OneOf.
-func (s *SubscriptionStatus) GetOneOf() SubscriptionStatusSum {
-	return s.OneOf
+// SetName sets the value of Name.
+func (s *SubscriptionService) SetName(val string) {
+	s.Name = val
 }
 
-// SetOneOf sets the value of OneOf.
-func (s *SubscriptionStatus) SetOneOf(val SubscriptionStatusSum) {
-	s.OneOf = val
+// Ref: #/components/schemas/SubscriptionUpdate
+type SubscriptionUpdate struct {
+	// 契約名.
+	Name string `json:"name"`
 }
 
-// SubscriptionStatusSum represents sum type.
-type SubscriptionStatusSum struct {
-	Type         SubscriptionStatusSumType // switch on this field
-	Unsubscribed Unsubscribed
-	Subscribed   Subscribed
+// GetName returns the value of Name.
+func (s *SubscriptionUpdate) GetName() string {
+	return s.Name
 }
 
-// SubscriptionStatusSumType is oneOf type of SubscriptionStatusSum.
-type SubscriptionStatusSumType string
-
-// Possible values for SubscriptionStatusSumType.
-const (
-	UnsubscribedSubscriptionStatusSum SubscriptionStatusSumType = "Unsubscribed"
-	SubscribedSubscriptionStatusSum   SubscriptionStatusSumType = "Subscribed"
-)
-
-// IsUnsubscribed reports whether SubscriptionStatusSum is Unsubscribed.
-func (s SubscriptionStatusSum) IsUnsubscribed() bool {
-	return s.Type == UnsubscribedSubscriptionStatusSum
-}
-
-// IsSubscribed reports whether SubscriptionStatusSum is Subscribed.
-func (s SubscriptionStatusSum) IsSubscribed() bool { return s.Type == SubscribedSubscriptionStatusSum }
-
-// SetUnsubscribed sets SubscriptionStatusSum to Unsubscribed.
-func (s *SubscriptionStatusSum) SetUnsubscribed(v Unsubscribed) {
-	s.Type = UnsubscribedSubscriptionStatusSum
-	s.Unsubscribed = v
-}
-
-// GetUnsubscribed returns Unsubscribed and true boolean if SubscriptionStatusSum is Unsubscribed.
-func (s SubscriptionStatusSum) GetUnsubscribed() (v Unsubscribed, ok bool) {
-	if !s.IsUnsubscribed() {
-		return v, false
-	}
-	return s.Unsubscribed, true
-}
-
-// NewUnsubscribedSubscriptionStatusSum returns new SubscriptionStatusSum from Unsubscribed.
-func NewUnsubscribedSubscriptionStatusSum(v Unsubscribed) SubscriptionStatusSum {
-	var s SubscriptionStatusSum
-	s.SetUnsubscribed(v)
-	return s
-}
-
-// SetSubscribed sets SubscriptionStatusSum to Subscribed.
-func (s *SubscriptionStatusSum) SetSubscribed(v Subscribed) {
-	s.Type = SubscribedSubscriptionStatusSum
-	s.Subscribed = v
-}
-
-// GetSubscribed returns Subscribed and true boolean if SubscriptionStatusSum is Subscribed.
-func (s SubscriptionStatusSum) GetSubscribed() (v Subscribed, ok bool) {
-	if !s.IsSubscribed() {
-		return v, false
-	}
-	return s.Subscribed, true
-}
-
-// NewSubscribedSubscriptionStatusSum returns new SubscriptionStatusSum from Subscribed.
-func NewSubscribedSubscriptionStatusSum(v Subscribed) SubscriptionStatusSum {
-	var s SubscriptionStatusSum
-	s.SetSubscribed(v)
-	return s
+// SetName sets the value of Name.
+func (s *SubscriptionUpdate) SetName(val string) {
+	s.Name = val
 }
 
 type Tags []string
@@ -6070,57 +8797,6 @@ func (*UnsubscribeNoContent) unsubscribeRes() {}
 type UnsubscribeNotFound ErrorSchema
 
 func (*UnsubscribeNotFound) unsubscribeRes() {}
-
-// Ref: #/components/schemas/Unsubscribed
-type Unsubscribed struct {
-	// 未契約時にとるSubscriptionStatusの状態.
-	Status OptUnsubscribedStatus `json:"status"`
-}
-
-// GetStatus returns the value of Status.
-func (s *Unsubscribed) GetStatus() OptUnsubscribedStatus {
-	return s.Status
-}
-
-// SetStatus sets the value of Status.
-func (s *Unsubscribed) SetStatus(val OptUnsubscribedStatus) {
-	s.Status = val
-}
-
-// 未契約時にとるSubscriptionStatusの状態.
-type UnsubscribedStatus string
-
-const (
-	UnsubscribedStatusUnsubscribed UnsubscribedStatus = "unsubscribed"
-)
-
-// AllValues returns all UnsubscribedStatus values.
-func (UnsubscribedStatus) AllValues() []UnsubscribedStatus {
-	return []UnsubscribedStatus{
-		UnsubscribedStatusUnsubscribed,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s UnsubscribedStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case UnsubscribedStatusUnsubscribed:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *UnsubscribedStatus) UnmarshalText(data []byte) error {
-	switch UnsubscribedStatus(data) {
-	case UnsubscribedStatusUnsubscribed:
-		*s = UnsubscribedStatusUnsubscribed
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
 
 type UpdateCertificateBadRequest ErrorSchema
 
@@ -6559,8 +9235,8 @@ type UserDetail struct {
 	// Userが所属しているGroupのリスト.
 	Groups []Group `json:"groups"`
 	// Userを検索するためのタグ.
-	Tags                Tags   `json:"tags"`
-	IpRestrictionConfig jx.Raw `json:"ipRestrictionConfig"`
+	Tags                Tags                   `json:"tags"`
+	IpRestrictionConfig OptIpRestrictionConfig `json:"ipRestrictionConfig"`
 }
 
 // GetID returns the value of ID.
@@ -6599,7 +9275,7 @@ func (s *UserDetail) GetTags() Tags {
 }
 
 // GetIpRestrictionConfig returns the value of IpRestrictionConfig.
-func (s *UserDetail) GetIpRestrictionConfig() jx.Raw {
+func (s *UserDetail) GetIpRestrictionConfig() OptIpRestrictionConfig {
 	return s.IpRestrictionConfig
 }
 
@@ -6639,7 +9315,7 @@ func (s *UserDetail) SetTags(val Tags) {
 }
 
 // SetIpRestrictionConfig sets the value of IpRestrictionConfig.
-func (s *UserDetail) SetIpRestrictionConfig(val jx.Raw) {
+func (s *UserDetail) SetIpRestrictionConfig(val OptIpRestrictionConfig) {
 	s.IpRestrictionConfig = val
 }
 

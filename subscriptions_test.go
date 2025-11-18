@@ -35,6 +35,9 @@ func TestSubscriptionAPI(t *testing.T) {
 	subscriptionOp := apigw.NewSubscriptionOp(client)
 
 	subscriptions, err := subscriptionOp.ListPlans(ctx)
+	if err != nil {
+		t.Error(err.Error())
+	}
 	require.Nil(t, err)
 	require.Greater(t, len(subscriptions), 0)
 
@@ -42,13 +45,16 @@ func TestSubscriptionAPI(t *testing.T) {
 		return
 	}
 
-	err = subscriptionOp.Create(ctx, subscriptions[0].ID.Value)
+	err = subscriptionOp.Create(ctx, subscriptions[0].ID.Value, "sdk-test")
 	require.Nil(t, err)
 
-	status, err := subscriptionOp.Read(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, string(status.Type), "Subscribed")
+	subs, err := subscriptionOp.List(ctx)
+	require.Nil(t, err)
 
-	err = subscriptionOp.Delete(ctx)
+	status, err := subscriptionOp.Read(ctx, subs[0].ID.Value)
+	assert.Nil(t, err)
+	assert.Equal(t, string(status.Name.Value), "sdk-test")
+
+	err = subscriptionOp.Delete(ctx, subs[0].ID.Value)
 	assert.Nil(t, err)
 }
