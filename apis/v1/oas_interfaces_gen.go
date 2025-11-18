@@ -113,8 +113,12 @@ type GetServicesRes interface {
 	getServicesRes()
 }
 
-type GetSubscriptionRes interface {
-	getSubscriptionRes()
+type GetSubscriptionByIdRes interface {
+	getSubscriptionByIdRes()
+}
+
+type GetSubscriptionsRes interface {
+	getSubscriptionsRes()
 }
 
 type GetUserAuthenticationRes interface {

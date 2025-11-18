@@ -17,18 +17,17 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
 
 type SubscriptionAPI interface {
 	ListPlans(ctx context.Context) ([]v1.Plan, error)
-	Create(ctx context.Context, id uuid.UUID) error
-	Read(ctx context.Context) (*v1.SubscriptionStatusSum, error)
-	Delete(ctx context.Context) error
+	List(ctx context.Context) ([]v1.Subscription, error)
+	Create(ctx context.Context, id uuid.UUID, name string) error
+	Read(ctx context.Context, id uuid.UUID) (*v1.SubscriptionDetailResponse, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 var _ SubscriptionAPI = (*subscriptionOp)(nil)
@@ -49,38 +48,34 @@ func (op *subscriptionOp) ListPlans(ctx context.Context) ([]v1.Plan, error) {
 
 	switch p := res.(type) {
 	case *v1.GetPlansOK:
-		d := jx.DecodeBytes(p.Apigw)
-		plans := make([]v1.Plan, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "plans":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var plan v1.Plan
-					if err := plan.Decode(d); err != nil {
-						return err
-					}
-					plans = append(plans, plan)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetPlans response: %w", err)
-		}
-		return plans, nil
+		return p.Apigw.Plans, nil
 	case *v1.ErrorSchema:
-		return nil, NewAPIError("Subscription.ListPlans", 400, errors.New(p.Message.Value))
+		return nil, NewAPIError("Subscription.ListPlans", 500, errors.New(p.Message.Value))
 	}
 
 	return nil, NewAPIError("Subscription.ListPlans", 0, nil)
 }
 
-func (op *subscriptionOp) Create(ctx context.Context, id uuid.UUID) error {
-	res, err := op.client.Subscribe(ctx, &v1.SubscriptionOption{PlanId: v1.NewOptUUID(id)})
+func (op *subscriptionOp) List(ctx context.Context) ([]v1.Subscription, error) {
+	res, err := op.client.GetSubscriptions(ctx)
+	if err != nil {
+		return nil, NewAPIError("Subscription.List", 0, err)
+	}
+
+	switch p := res.(type) {
+	case *v1.GetSubscriptionsOK:
+		return p.Apigw.Subscriptions, nil
+	case *v1.GetSubscriptionsUnauthorized:
+		return nil, NewAPIError("Subscription.List", 401, errors.New(p.Message.Value))
+	case *v1.GetSubscriptionsInternalServerError:
+		return nil, NewAPIError("Subscription.List", 500, errors.New(p.Message.Value))
+	}
+
+	return nil, NewAPIError("Subscription.List", 0, nil)
+}
+
+func (op *subscriptionOp) Create(ctx context.Context, id uuid.UUID, name string) error {
+	res, err := op.client.Subscribe(ctx, &v1.SubscriptionCreate{PlanId: id, Name: name})
 	if err != nil {
 		return NewAPIError("Subscription.Create", 0, err)
 	}
@@ -99,26 +94,26 @@ func (op *subscriptionOp) Create(ctx context.Context, id uuid.UUID) error {
 	return NewAPIError("Subscription.Create", 0, nil)
 }
 
-func (op *subscriptionOp) Read(ctx context.Context) (*v1.SubscriptionStatusSum, error) {
-	res, err := op.client.GetSubscription(ctx)
+func (op *subscriptionOp) Read(ctx context.Context, id uuid.UUID) (*v1.SubscriptionDetailResponse, error) {
+	res, err := op.client.GetSubscriptionById(ctx, v1.GetSubscriptionByIdParams{SubscriptionId: id})
 	if err != nil {
 		return nil, NewAPIError("Subscription.Read", 0, err)
 	}
 
 	switch p := res.(type) {
-	case *v1.GetSubscriptionOK:
-		return &p.Apigw.Subscription.Value.OneOf, nil
-	case *v1.GetSubscriptionUnauthorized:
-		return nil, NewAPIError("Subscription.Read", 401, errors.New(p.Message.Value))
-	case *v1.GetSubscriptionInternalServerError:
+	case *v1.GetSubscriptionByIdOK:
+		return &p.Apigw.Subscription.Value, nil
+	case *v1.GetSubscriptionByIdNotFound:
+		return nil, NewAPIError("Subscription.Read", 404, errors.New(p.Message.Value))
+	case *v1.GetSubscriptionByIdInternalServerError:
 		return nil, NewAPIError("Subscription.Read", 500, errors.New(p.Message.Value))
 	}
 
 	return nil, NewAPIError("Subscription.Read", 0, nil)
 }
 
-func (op *subscriptionOp) Delete(ctx context.Context) error {
-	res, err := op.client.Unsubscribe(ctx)
+func (op *subscriptionOp) Delete(ctx context.Context, id uuid.UUID) error {
+	res, err := op.client.Unsubscribe(ctx, v1.UnsubscribeParams{SubscriptionId: id})
 	if err != nil {
 		return NewAPIError("Subscription.Delete", 0, err)
 	}

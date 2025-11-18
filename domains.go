@@ -17,9 +17,7 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
@@ -49,30 +47,7 @@ func (op *domainOp) List(ctx context.Context) ([]v1.Domain, error) {
 
 	switch p := res.(type) {
 	case *v1.GetDomainsOK:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		domains := make([]v1.Domain, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "domains":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var domain v1.Domain
-					if err := domain.Decode(d); err != nil {
-						return err
-					}
-					domains = append(domains, domain)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetDomains response: %w", err)
-		}
-		return domains, nil
+		return p.Apigw.Domains, nil
 	case *v1.GetDomainsBadRequest:
 		return nil, NewAPIError("Domain.List", 400, errors.New(p.Message.Value))
 	case *v1.GetDomainsUnauthorized:

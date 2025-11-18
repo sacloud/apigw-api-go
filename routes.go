@@ -17,15 +17,13 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
 
 type RouteAPI interface {
-	List(ctx context.Context) ([]v1.RouteDetail, error)
+	List(ctx context.Context) ([]v1.Route, error)
 	Create(ctx context.Context, request *v1.RouteDetail) (*v1.RouteDetail, error)
 	Read(ctx context.Context, id uuid.UUID) (*v1.RouteDetail, error)
 	Update(ctx context.Context, request *v1.RouteDetail, id uuid.UUID) error
@@ -43,7 +41,7 @@ func NewRouteOp(client *v1.Client, serviceId uuid.UUID) RouteAPI {
 	return &routeOp{client: client, serviceId: serviceId}
 }
 
-func (op *routeOp) List(ctx context.Context) ([]v1.RouteDetail, error) {
+func (op *routeOp) List(ctx context.Context) ([]v1.Route, error) {
 	res, err := op.client.GetServiceRoutes(ctx, v1.GetServiceRoutesParams{ServiceId: op.serviceId})
 	if err != nil {
 		return nil, NewAPIError("Route.List", 0, err)
@@ -51,30 +49,7 @@ func (op *routeOp) List(ctx context.Context) ([]v1.RouteDetail, error) {
 
 	switch p := res.(type) {
 	case *v1.GetServiceRoutesOK:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		routes := make([]v1.RouteDetail, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "routes":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var route v1.RouteDetail
-					if err := route.Decode(d); err != nil {
-						return err
-					}
-					routes = append(routes, route)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetServiceRoutes response: %w", err)
-		}
-		return routes, nil
+		return p.Apigw.Routes, nil
 	case *v1.GetServiceRoutesBadRequest:
 		return nil, NewAPIError("Route.List", 400, errors.New(p.Message.Value))
 	case *v1.GetServiceRoutesNotFound:
@@ -99,23 +74,7 @@ func (op *routeOp) Create(ctx context.Context, request *v1.RouteDetail) (*v1.Rou
 
 	switch p := res.(type) {
 	case *v1.AddRouteCreated:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		route := new(v1.RouteDetail)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "route":
-				if err := route.Decode(d); err != nil {
-					return err
-				}
-			default:
-				return d.Skip()
-			}
-			return nil
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode AddRoute response: %w", err)
-		}
-		return route, nil
+		return &p.Apigw.Route.Value, nil
 	case *v1.AddRouteBadRequest:
 		return nil, NewAPIError("Route.Create", 400, errors.New(p.Message.Value))
 	case *v1.AddRouteNotFound:
@@ -136,34 +95,8 @@ func (op *routeOp) Read(ctx context.Context, id uuid.UUID) (*v1.RouteDetail, err
 	}
 
 	switch p := res.(type) {
-	case *v1.GetRouteOKApplicationJSON:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(*p)
-		route := new(v1.RouteDetail)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "apigw":
-				if err := d.Obj(func(d *jx.Decoder, key string) error {
-					switch key {
-					case "route":
-						if err := route.Decode(d); err != nil {
-							return err
-						}
-					default:
-						return d.Skip()
-					}
-					return nil
-				}); err != nil {
-					return fmt.Errorf("failed to decode AddRoute's route: %w", err)
-				}
-			default:
-				return d.Skip()
-			}
-			return nil
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode AddRoute's apigw: %w", err)
-		}
-		return route, nil
+	case *v1.GetRouteOK:
+		return &p.Apigw.Route.Value, nil
 	case *v1.GetRouteBadRequest:
 		return nil, NewAPIError("Route.Read", 400, errors.New(p.Message.Value))
 	case *v1.GetRouteNotFound:
@@ -220,7 +153,7 @@ func (op *routeOp) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 type RouteExtraAPI interface {
-	ReadAuthorization(ctx context.Context) (*v1.RouteAuthorizationDetailSum1, error)
+	ReadAuthorization(ctx context.Context) (*v1.RouteAuthorizationDetailResponse, error)
 	DisableAuthorization(ctx context.Context) error
 	EnableAuthorization(ctx context.Context, groups []v1.RouteAuthorization) error
 	ReadRequestTransformation(ctx context.Context) (*v1.RequestTransformation, error)
@@ -241,7 +174,7 @@ func NewRouteExtraOp(client *v1.Client, serviceId uuid.UUID, routeId uuid.UUID) 
 	return &routeExtraOp{client: client, serviceId: serviceId, routeId: routeId}
 }
 
-func (op *routeExtraOp) ReadAuthorization(ctx context.Context) (*v1.RouteAuthorizationDetailSum1, error) {
+func (op *routeExtraOp) ReadAuthorization(ctx context.Context) (*v1.RouteAuthorizationDetailResponse, error) {
 	res, err := op.client.GetRouteAuthorization(ctx, v1.GetRouteAuthorizationParams{
 		ServiceId: op.serviceId, RouteId: op.routeId})
 	if err != nil {
@@ -249,34 +182,8 @@ func (op *routeExtraOp) ReadAuthorization(ctx context.Context) (*v1.RouteAuthori
 	}
 
 	switch p := res.(type) {
-	case *v1.GetRouteAuthorizationOKApplicationJSON:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(*p)
-		route := new(v1.RouteAuthorizationDetailSum1)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "apigw":
-				if err := d.Obj(func(d *jx.Decoder, key string) error {
-					switch key {
-					case "routeAuthorization":
-						if err := route.Decode(d); err != nil {
-							return err
-						}
-					default:
-						return d.Skip()
-					}
-					return nil
-				}); err != nil {
-					return fmt.Errorf("failed to decode ReadAuthorization's route: %w", err)
-				}
-			default:
-				return d.Skip()
-			}
-			return nil
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode ReadAuthorization's apigw: %w", err)
-		}
-		return route, nil
+	case *v1.GetRouteAuthorizationOK:
+		return &p.Apigw.RouteAuthorization.Value, nil
 	case *v1.GetRouteAuthorizationBadRequest:
 		return nil, NewAPIError("RouteExtra.ReadAuthorization", 400, errors.New(p.Message.Value))
 	case *v1.GetRouteAuthorizationNotFound:
@@ -345,34 +252,8 @@ func (op *routeExtraOp) ReadRequestTransformation(ctx context.Context) (*v1.Requ
 	}
 
 	switch p := res.(type) {
-	case *v1.GetRequestTransformationOKApplicationJSON:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(*p)
-		req := new(v1.RequestTransformation)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "apigw":
-				if err := d.Obj(func(d *jx.Decoder, key string) error {
-					switch key {
-					case "requestTransformation":
-						if err := req.Decode(d); err != nil {
-							return fmt.Errorf("failed to decode requestTransformation field in GetRequestTransformation: %w", err)
-						}
-						return nil
-					default:
-						return d.Skip()
-					}
-				}); err != nil {
-					return fmt.Errorf("failed to decode apigw field in GetRequestTransformation: %w", err)
-				}
-			default:
-				return d.Skip()
-			}
-			return nil
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetRequestTransformation response: %w", err)
-		}
-		return req, nil
+	case *v1.GetRequestTransformationOK:
+		return &p.Apigw.RequestTransformation.Value, nil
 	case *v1.GetRequestTransformationBadRequest:
 		return nil, NewAPIError("RouteExtra.ReadRequestTransformation", 400, errors.New(p.Message.Value))
 	case *v1.GetRequestTransformationNotFound:
@@ -413,34 +294,8 @@ func (op *routeExtraOp) ReadResponseTransformation(ctx context.Context) (*v1.Res
 	}
 
 	switch p := res.(type) {
-	case *v1.GetResponseTransformationOKApplicationJSON:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(*p)
-		req := new(v1.ResponseTransformation)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "apigw":
-				if err := d.Obj(func(d *jx.Decoder, key string) error {
-					switch key {
-					case "responseTransformation":
-						if err := req.Decode(d); err != nil {
-							return fmt.Errorf("failed to decode responseTransformation field in GetResponseTransformation: %w", err)
-						}
-						return nil
-					default:
-						return d.Skip()
-					}
-				}); err != nil {
-					return fmt.Errorf("failed to decode apigw field in GetResponseTransformation: %w", err)
-				}
-			default:
-				return d.Skip()
-			}
-			return nil
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetResponseTransformation response: %w", err)
-		}
-		return req, nil
+	case *v1.GetResponseTransformationOK:
+		return &p.Apigw.ResponseTransformation.Value, nil
 	case *v1.GetResponseTransformationBadRequest:
 		return nil, NewAPIError("RouteExtra.ReadResponseTransformation", 400, errors.New(p.Message.Value))
 	case *v1.GetResponseTransformationNotFound:
