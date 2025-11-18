@@ -17,9 +17,7 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
@@ -50,30 +48,7 @@ func (op *groupOp) List(ctx context.Context) ([]v1.Group, error) {
 
 	switch p := res.(type) {
 	case *v1.GetGroupsOK:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		groups := make([]v1.Group, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "groups":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var group v1.Group
-					if err := group.Decode(d); err != nil {
-						return err
-					}
-					groups = append(groups, group)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetGroups response: %w", err)
-		}
-		return groups, nil
+		return p.Apigw.Groups, nil
 	case *v1.GetGroupsBadRequest:
 		return nil, NewAPIError("Group.List", 400, errors.New(p.Message.Value))
 	case *v1.GetGroupsInternalServerError:

@@ -20,10 +20,30 @@ import (
 	"testing"
 
 	apigw "github.com/sacloud/apigw-api-go"
+	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 	"github.com/sacloud/packages-go/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func getSvcSubRequest() (v1.ServiceSubscriptionRequest, error) {
+	client, err := apigw.NewClient()
+	if err != nil {
+		return v1.ServiceSubscriptionRequest{}, err
+	}
+
+	ctx := context.Background()
+	subOp := apigw.NewSubscriptionOp(client)
+
+	list, err := subOp.List(ctx)
+	if err != nil || len(list) == 0 {
+		return v1.ServiceSubscriptionRequest{}, err
+	}
+
+	return v1.ServiceSubscriptionRequest{
+		ID: list[0].ID.Value,
+	}, nil
+}
 
 func TestSubscriptionAPI(t *testing.T) {
 	testutil.PreCheckEnvsFunc("SAKURACLOUD_ACCESS_TOKEN", "SAKURACLOUD_ACCESS_TOKEN_SECRET")(t)
@@ -34,21 +54,27 @@ func TestSubscriptionAPI(t *testing.T) {
 	ctx := context.Background()
 	subscriptionOp := apigw.NewSubscriptionOp(client)
 
-	subscriptions, err := subscriptionOp.ListPlans(ctx)
+	plans, err := subscriptionOp.ListPlans(ctx)
+	if err != nil {
+		t.Error(err.Error())
+	}
 	require.Nil(t, err)
-	require.Greater(t, len(subscriptions), 0)
+	require.Greater(t, len(plans), 0)
 
 	if os.Getenv("ENABLE_APIGW_SUBSCRIPTION_TEST") != "1" {
 		return
 	}
 
-	err = subscriptionOp.Create(ctx, subscriptions[0].ID.Value)
+	err = subscriptionOp.Create(ctx, plans[0].ID.Value, "sdk-test")
 	require.Nil(t, err)
 
-	status, err := subscriptionOp.Read(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, string(status.Type), "Subscribed")
+	subs, err := subscriptionOp.List(ctx)
+	require.Nil(t, err)
 
-	err = subscriptionOp.Delete(ctx)
+	status, err := subscriptionOp.Read(ctx, subs[0].ID.Value)
+	assert.Nil(t, err)
+	assert.Equal(t, string(status.Name.Value), "sdk-test")
+
+	err = subscriptionOp.Delete(ctx, subs[0].ID.Value)
 	assert.Nil(t, err)
 }

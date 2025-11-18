@@ -112,6 +112,12 @@ type GetServiceRoutesParams struct {
 	ServiceId uuid.UUID
 }
 
+// GetSubscriptionByIdParams is parameters of getSubscriptionById operation.
+type GetSubscriptionByIdParams struct {
+	// SubscriptionID.
+	SubscriptionId uuid.UUID
+}
+
 // GetUserParams is parameters of getUser operation.
 type GetUserParams struct {
 	// UserID.
@@ -128,6 +134,12 @@ type GetUserAuthenticationParams struct {
 type GetUserGroupParams struct {
 	// UserID.
 	UserId uuid.UUID
+}
+
+// UnsubscribeParams is parameters of unsubscribe operation.
+type UnsubscribeParams struct {
+	// SubscriptionID.
+	SubscriptionId uuid.UUID
 }
 
 // UpdateCertificateParams is parameters of updateCertificate operation.
@@ -166,6 +178,12 @@ type UpdateRouteParams struct {
 type UpdateServiceParams struct {
 	// ServiceID.
 	ServiceId uuid.UUID
+}
+
+// UpdateSubscriptionParams is parameters of updateSubscription operation.
+type UpdateSubscriptionParams struct {
+	// SubscriptionID.
+	SubscriptionId uuid.UUID
 }
 
 // UpdateUserParams is parameters of updateUser operation.

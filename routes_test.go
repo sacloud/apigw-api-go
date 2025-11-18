@@ -20,14 +20,18 @@ func TestRouteAPI(t *testing.T) {
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
 
+	subReq, err := getSvcSubRequest()
+	require.Nil(t, err)
+
 	ctx := context.Background()
 	serviceOp := apigw.NewServiceOp(client)
 
-	service, err := serviceOp.Create(ctx, &v1.ServiceDetail{
-		Name:     "test-service",
-		Host:     os.Getenv("SAKURACLOUD_TEST_HOST"),
-		Port:     v1.NewOptInt(80),
-		Protocol: "http",
+	service, err := serviceOp.Create(ctx, &v1.ServiceDetailRequest{
+		Name:         "test-service",
+		Host:         os.Getenv("SAKURACLOUD_TEST_HOST"),
+		Port:         v1.NewOptInt(80),
+		Protocol:     "http",
+		Subscription: subReq,
 	})
 	require.Nil(t, err)
 	defer func() { _ = serviceOp.Delete(ctx, service.ID.Value) }()
@@ -67,14 +71,17 @@ func TestRouteExtraAPI(t *testing.T) {
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
 
-	ctx := context.Background()
+	subReq, err := getSvcSubRequest()
+	require.Nil(t, err)
 
+	ctx := context.Background()
 	serviceOp := apigw.NewServiceOp(client)
-	service, err := serviceOp.Create(ctx, &v1.ServiceDetail{
-		Name:     "test-service",
-		Host:     os.Getenv("SAKURACLOUD_TEST_HOST"),
-		Port:     v1.NewOptInt(80),
-		Protocol: "http",
+	service, err := serviceOp.Create(ctx, &v1.ServiceDetailRequest{
+		Name:         "test-service",
+		Host:         os.Getenv("SAKURACLOUD_TEST_HOST"),
+		Port:         v1.NewOptInt(80),
+		Protocol:     "http",
+		Subscription: subReq,
 	})
 	require.Nil(t, err)
 	defer func() { _ = serviceOp.Delete(ctx, service.ID.Value) }()
@@ -106,21 +113,24 @@ func TestRouteExtraAPI(t *testing.T) {
 
 	auth, err := routeExtraOp.ReadAuthorization(ctx)
 	assert.Nil(t, err)
-	assert.True(t, bool(auth.IsACLEnabled))
+	assert.True(t, auth.IsACLEnabled)
 	assert.Greater(t, len(auth.Groups), 0)
 
 	err = routeExtraOp.DisableAuthorization(ctx)
 	assert.Nil(t, err)
 
 	auth2, err := routeExtraOp.ReadAuthorization(ctx)
+	if err != nil {
+		t.Error(err.Error())
+	}
 	assert.Nil(t, err)
-	assert.False(t, bool(auth2.IsACLEnabled))
+	assert.False(t, auth2.IsACLEnabled)
 	assert.Greater(t, len(auth2.Groups), 0)
 
 	reqTrans := v1.RequestTransformation{
 		HttpMethod: v1.NewOptHTTPMethod("GET"),
-		Add: v1.NewOptResponseModification(v1.ResponseModification{
-			Headers: []v1.ResponseModificationHeadersItem{{
+		Add: v1.NewOptRequestModificationDetail(v1.RequestModificationDetail{
+			Headers: []v1.RequestModificationDetailHeadersItem{{
 				Key:   v1.NewOptRequestHeaderKey("SDK-Test-Header"),
 				Value: v1.NewOptRequestHeaderValue("APIGW-foo"),
 			}},
