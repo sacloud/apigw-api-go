@@ -1,6 +1,6 @@
 module github.com/sacloud/apigw-api-go
 
-go 1.24
+go 1.24.0
 
 tool github.com/ogen-go/ogen/cmd/ogen
 
@@ -8,7 +8,7 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
 	github.com/google/uuid v1.6.0
-	github.com/ogen-go/ogen v1.14.1-0.20250615151630-ffbdf74313c6
+	github.com/ogen-go/ogen v1.16.0
 	github.com/sacloud/api-client-go v0.3.3
 	github.com/sacloud/packages-go v0.0.11
 	github.com/stretchr/testify v1.11.1
@@ -30,16 +30,17 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sacloud/go-http v0.1.9 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/ratelimit v0.3.1 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
