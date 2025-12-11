@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/ogen-go/ogen v1.16.0
 	github.com/sacloud/api-client-go v0.3.3
-	github.com/sacloud/packages-go v0.0.11
+	github.com/sacloud/packages-go v0.0.12
 	github.com/stretchr/testify v1.11.1
 )
 
