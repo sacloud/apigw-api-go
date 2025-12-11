@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.2.0](https://github.com/sacloud/apigw-api-go/compare/v0.1.0...v0.2.0) - 2025-12-11
+- Update github settings by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/9
+- ci: bump Songmu/tagpr from 1.8.4 to 1.9.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/11
+- go: bump github.com/ogen-go/ogen from 1.14.1-0.20250615151630-ffbdf74313c6 to 1.16.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/14
+- Use APIGW OpenAPI Spec v2.0.0 by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/15
+- go: bump github.com/sacloud/packages-go from 0.0.11 to 0.0.12 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/20
+- ci: bump actions/checkout from 5.0.0 to 6.0.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/17
+- go: bump github.com/go-faster/jx from 1.1.0 to 1.2.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/16
+- ci: bump actions/setup-go from 5.5.0 to 6.1.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/18
+
 ## [v0.1.0](https://github.com/sacloud/apigw-api-go/commits/v0.1.0) - 2025-09-01
 - ci: bump actions/checkout from 4 to 5 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/4
 - go: bump github.com/stretchr/testify from 1.10.0 to 1.11.1 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/7
