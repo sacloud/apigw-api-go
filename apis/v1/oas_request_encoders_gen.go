@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/go-faster/jx"
-
 	ht "github.com/ogen-go/ogen/http"
 )
 
@@ -82,7 +81,7 @@ func encodeAddRouteRequest(
 }
 
 func encodeAddServiceRequest(
-	req *ServiceDetail,
+	req *ServiceDetailRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -110,7 +109,7 @@ func encodeAddUserRequest(
 }
 
 func encodeSubscribeRequest(
-	req *SubscriptionOption,
+	req *SubscriptionCreate,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -208,7 +207,7 @@ func encodeUpdateServiceRequest(
 }
 
 func encodeUpdateSubscriptionRequest(
-	req *SubscriptionOption,
+	req *SubscriptionUpdate,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

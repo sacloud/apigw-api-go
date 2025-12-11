@@ -17,9 +17,7 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
@@ -49,30 +47,7 @@ func (op *certificateOp) List(ctx context.Context) ([]v1.Certificate, error) {
 
 	switch p := res.(type) {
 	case *v1.GetCertificatesOK:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		certificates := make([]v1.Certificate, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "certificates":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var certificate v1.Certificate
-					if err := certificate.Decode(d); err != nil {
-						return err
-					}
-					certificates = append(certificates, certificate)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetCertificates response: %w", err)
-		}
-		return certificates, nil
+		return p.Apigw.Certificates, nil
 	case *v1.GetCertificatesBadRequest:
 		return nil, NewAPIError("Certificate.List", 400, errors.New(p.Message.Value))
 	case *v1.GetCertificatesUnauthorized:

@@ -17,17 +17,15 @@ package apigw
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 )
 
 type ServiceAPI interface {
-	List(ctx context.Context) ([]v1.ServiceDetail, error)
-	Create(ctx context.Context, request *v1.ServiceDetail) (*v1.ServiceDetail, error)
-	Read(ctx context.Context, id uuid.UUID) (*v1.ServiceDetail, error)
+	List(ctx context.Context) ([]v1.ServiceDetailResponse, error)
+	Create(ctx context.Context, request *v1.ServiceDetailRequest) (*v1.ServiceDetailRequest, error)
+	Read(ctx context.Context, id uuid.UUID) (*v1.ServiceDetailResponse, error)
 	Update(ctx context.Context, request *v1.ServiceDetail, id uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -42,7 +40,7 @@ func NewServiceOp(client *v1.Client) ServiceAPI {
 	return &serviceOp{client: client}
 }
 
-func (op *serviceOp) List(ctx context.Context) ([]v1.ServiceDetail, error) {
+func (op *serviceOp) List(ctx context.Context) ([]v1.ServiceDetailResponse, error) {
 	res, err := op.client.GetServices(ctx)
 	if err != nil {
 		return nil, NewAPIError("Service.List", 0, err)
@@ -50,30 +48,7 @@ func (op *serviceOp) List(ctx context.Context) ([]v1.ServiceDetail, error) {
 
 	switch p := res.(type) {
 	case *v1.GetServicesOK:
-		// ogenが直接デコードできないため、jxを使用して手動でデコード。将来的には修正される可能性あり
-		d := jx.DecodeBytes(p.Apigw)
-		services := make([]v1.ServiceDetail, 0)
-		if err := d.Obj(func(d *jx.Decoder, key string) error {
-			switch key {
-			case "services":
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var service v1.ServiceDetail
-					if err := service.Decode(d); err != nil {
-						return err
-					}
-					services = append(services, service)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			default:
-				return d.Skip()
-			}
-		}); err != nil {
-			return nil, fmt.Errorf("failed to decode GetServiceRoutes response: %w", err)
-		}
-		return services, nil
+		return p.Apigw.Services, nil
 	case *v1.GetServicesBadRequest:
 		return nil, NewAPIError("Service.List", 400, errors.New(p.Message.Value))
 	case *v1.GetServicesUnauthorized:
@@ -85,14 +60,14 @@ func (op *serviceOp) List(ctx context.Context) ([]v1.ServiceDetail, error) {
 	return nil, NewAPIError("Service.List", 0, nil)
 }
 
-func (op *serviceOp) Create(ctx context.Context, request *v1.ServiceDetail) (*v1.ServiceDetail, error) {
+func (op *serviceOp) Create(ctx context.Context, request *v1.ServiceDetailRequest) (*v1.ServiceDetailRequest, error) {
 	res, err := op.client.AddService(ctx, request)
 	if err != nil {
 		return nil, NewAPIError("Service.Create", 0, err)
 	}
 
 	switch p := res.(type) {
-	case *v1.AddServiceOK:
+	case *v1.AddServiceCreated:
 		return &p.Apigw.Service.Value, nil
 	case *v1.AddServiceBadRequest:
 		return nil, NewAPIError("Service.Create", 400, errors.New(p.Message.Value))
@@ -107,7 +82,7 @@ func (op *serviceOp) Create(ctx context.Context, request *v1.ServiceDetail) (*v1
 	return nil, NewAPIError("Service.Create", 0, nil)
 }
 
-func (op *serviceOp) Read(ctx context.Context, id uuid.UUID) (*v1.ServiceDetail, error) {
+func (op *serviceOp) Read(ctx context.Context, id uuid.UUID) (*v1.ServiceDetailResponse, error) {
 	res, err := op.client.GetServiceById(ctx, v1.GetServiceByIdParams{ServiceId: id})
 	if err != nil {
 		return nil, NewAPIError("Service.Read", 0, err)

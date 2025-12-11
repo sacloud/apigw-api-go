@@ -1,6 +1,6 @@
 module github.com/sacloud/apigw-api-go
 
-go 1.24.0
+go 1.25
 
 tool github.com/ogen-go/ogen/cmd/ogen
 

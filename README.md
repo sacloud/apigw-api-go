@@ -2,7 +2,7 @@
 
 Go言語向けのさくらのクラウド APIゲートウェイ APIライブラリ
 
-APIゲートウェイ ドキュメント: https://manual.sakura.ad.jp/cloud/appliance/apigw/index.html
+APIゲートウェイ ドキュメント: https://manual.sakura.ad.jp/cloud/appliance/api-gateway/index.html
 
 ## 概要
 

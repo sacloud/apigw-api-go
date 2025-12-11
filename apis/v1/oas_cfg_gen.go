@@ -11,17 +11,20 @@ import (
 
 var regexMap = map[string]ogenregex.Regexp{
 	"^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$": ogenregex.MustCompile("^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"),
+	"^(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}$":                                                                                                                                   ogenregex.MustCompile("^(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}$"),
 	"^([\\w\\-._~!$&'()*+,;=:%]|%[0-9a-fA-F]{2})*$":                    ogenregex.MustCompile("^([\\w\\-._~!$&'()*+,;=:%]|%[0-9a-fA-F]{2})*$"),
 	"^([a-zA-Z0-9_~\\-\\\\\\p{L}]+(\\.[a-zA-Z0-9_~\\-\\\\\\p{L}]+)*)$": ogenregex.MustCompile("^([a-zA-Z0-9_~\\-\\\\\\p{L}]+(\\.[a-zA-Z0-9_~\\-\\\\\\p{L}]+)*)$"),
 	"^(\\/|~\\/).*": ogenregex.MustCompile("^(\\/|~\\/).*"),
 	"^-----BEGIN CERTIFICATE-----\\r?\\n(?:[A-Za-z0-9+/=\\r\\n]+)-----END CERTIFICATE-----\\r?\\n?$": ogenregex.MustCompile("^-----BEGIN CERTIFICATE-----\\r?\\n(?:[A-Za-z0-9+/=\\r\\n]+)-----END CERTIFICATE-----\\r?\\n?$"),
-	"^[\\p{L}\\p{N}._\\-]+$":   ogenregex.MustCompile("^[\\p{L}\\p{N}._\\-]+$"),
-	"^[\\x20-\\x7E]*$":         ogenregex.MustCompile("^[\\x20-\\x7E]*$"),
-	"^[^\\/\\s\\u3000]+$":      ogenregex.MustCompile("^[^\\/\\s\\u3000]+$"),
-	"^[a-zA-Z0-9-]+$":          ogenregex.MustCompile("^[a-zA-Z0-9-]+$"),
-	"^[a-zA-Z0-9-_.]+$":        ogenregex.MustCompile("^[a-zA-Z0-9-_.]+$"),
-	"^[a-zA-Z0-9-_]+$":         ogenregex.MustCompile("^[a-zA-Z0-9-_]+$"),
-	"^\\/[a-zA-Z0-9_\\-\\/]*$": ogenregex.MustCompile("^\\/[a-zA-Z0-9_\\-\\/]*$"),
+	"^[\\p{L}\\p{N}._\\-]+$":          ogenregex.MustCompile("^[\\p{L}\\p{N}._\\-]+$"),
+	"^[\\x20-\\x7E]*$":                ogenregex.MustCompile("^[\\x20-\\x7E]*$"),
+	"^[^\\/\\s\\u3000]+$":             ogenregex.MustCompile("^[^\\/\\s\\u3000]+$"),
+	"^[a-z0-9.\\-]*$":                 ogenregex.MustCompile("^[a-z0-9.\\-]*$"),
+	"^[a-zA-Z0-9-]+$":                 ogenregex.MustCompile("^[a-zA-Z0-9-]+$"),
+	"^[a-zA-Z0-9-_.]+$":               ogenregex.MustCompile("^[a-zA-Z0-9-_.]+$"),
+	"^[a-zA-Z0-9-_]+$":                ogenregex.MustCompile("^[a-zA-Z0-9-_]+$"),
+	"^[a-zA-Z0-9_\\-\\/!.*'()]*$":     ogenregex.MustCompile("^[a-zA-Z0-9_\\-\\/!.*'()]*$"),
+	"^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$": ogenregex.MustCompile("^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"),
 	"^\\s*(([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+([a-z\\d-]{2,})(\\.)?\\s*$": ogenregex.MustCompile("^\\s*(([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+([a-z\\d-]{2,})(\\.)?\\s*$"),
 }
 

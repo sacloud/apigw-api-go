@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
-
 	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/uri"
@@ -59,7 +58,7 @@ type Invoker interface {
 	// アップストリームのエンドポイント情報である Service を登録します。.
 	//
 	// POST /services
-	AddService(ctx context.Context, request *ServiceDetail) (AddServiceRes, error)
+	AddService(ctx context.Context, request *ServiceDetailRequest) (AddServiceRes, error)
 	// AddUser invokes addUser operation.
 	//
 	// 認証情報を設定する User を登録します。<br> User のIP制限設定は、Route
@@ -193,14 +192,19 @@ type Invoker interface {
 	//
 	// GET /services
 	GetServices(ctx context.Context) (GetServicesRes, error)
-	// GetSubscription invokes getSubscription operation.
+	// GetSubscriptionById invokes getSubscriptionById operation.
 	//
-	// お客様の API Gateway 契約状態を取得します。<br>
-	// 契約情報が存在しない場合は、未契約のステータスを返却します。<br>
-	// 契約情報が存在する場合は、契約中のステータスと加入中のプラン情報を返却します。.
+	// お客様の API Gateway 契約情報を取得します。<br>
+	// 契約が存在する場合は、契約情報と利用中のプラン情報を返却します。.
+	//
+	// GET /subscriptions/{subscriptionId}
+	GetSubscriptionById(ctx context.Context, params GetSubscriptionByIdParams) (GetSubscriptionByIdRes, error)
+	// GetSubscriptions invokes getSubscriptions operation.
+	//
+	// お客様の API Gateway 契約情報の一覧を取得します。.
 	//
 	// GET /subscriptions
-	GetSubscription(ctx context.Context) (GetSubscriptionRes, error)
+	GetSubscriptions(ctx context.Context) (GetSubscriptionsRes, error)
 	// GetUser invokes getUser operation.
 	//
 	// 登録した User の詳細情報を取得します。.
@@ -216,7 +220,8 @@ type Invoker interface {
 	GetUserAuthentication(ctx context.Context, params GetUserAuthenticationParams) (GetUserAuthenticationRes, error)
 	// GetUserGroup invokes getUserGroup operation.
 	//
-	// 登録した User が所属している Group の一覧を取得します。.
+	// 登録した Group の一覧を取得します。<br> 指定した User が各 Group
+	// に所属しているかどうかの情報も含めて返却します。.
 	//
 	// GET /users/{userId}/groups
 	GetUserGroup(ctx context.Context, params GetUserGroupParams) (GetUserGroupRes, error)
@@ -231,13 +236,13 @@ type Invoker interface {
 	// 選択したプランで API Gateway の利用契約を行います。.
 	//
 	// POST /subscriptions
-	Subscribe(ctx context.Context, request *SubscriptionOption) (SubscribeRes, error)
+	Subscribe(ctx context.Context, request *SubscriptionCreate) (SubscribeRes, error)
 	// Unsubscribe invokes unsubscribe operation.
 	//
-	// API Gateway の契約を解約します。.
+	// 登録した契約を解約します。.
 	//
-	// DELETE /subscriptions
-	Unsubscribe(ctx context.Context) (UnsubscribeRes, error)
+	// DELETE /subscriptions/{subscriptionId}
+	Unsubscribe(ctx context.Context, params UnsubscribeParams) (UnsubscribeRes, error)
 	// UpdateCertificate invokes updateCertificate operation.
 	//
 	// 登録した Certificate の詳細情報を更新します。.
@@ -277,10 +282,10 @@ type Invoker interface {
 	UpdateService(ctx context.Context, request *ServiceDetail, params UpdateServiceParams) (UpdateServiceRes, error)
 	// UpdateSubscription invokes updateSubscription operation.
 	//
-	// 選択したプランで API Gateway の契約内容を更新します。.
+	// 契約名を更新します。.
 	//
-	// PUT /subscriptions
-	UpdateSubscription(ctx context.Context, request *SubscriptionOption) (UpdateSubscriptionRes, error)
+	// PUT /subscriptions/{subscriptionId}
+	UpdateSubscription(ctx context.Context, request *SubscriptionUpdate, params UpdateSubscriptionParams) (UpdateSubscriptionRes, error)
 	// UpdateUser invokes updateUser operation.
 	//
 	// 登録した User の詳細情報を更新します。.
@@ -648,12 +653,12 @@ func (c *Client) sendAddRoute(ctx context.Context, request *RouteDetail, params 
 // アップストリームのエンドポイント情報である Service を登録します。.
 //
 // POST /services
-func (c *Client) AddService(ctx context.Context, request *ServiceDetail) (AddServiceRes, error) {
+func (c *Client) AddService(ctx context.Context, request *ServiceDetailRequest) (AddServiceRes, error) {
 	res, err := c.sendAddService(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendAddService(ctx context.Context, request *ServiceDetail) (res AddServiceRes, err error) {
+func (c *Client) sendAddService(ctx context.Context, request *ServiceDetailRequest) (res AddServiceRes, err error) {
 	// Validate request before sending.
 	if err := func() error {
 		if err := request.Validate(); err != nil {
@@ -1865,19 +1870,72 @@ func (c *Client) sendGetServices(ctx context.Context) (res GetServicesRes, err e
 	return result, nil
 }
 
-// GetSubscription invokes getSubscription operation.
+// GetSubscriptionById invokes getSubscriptionById operation.
 //
-// お客様の API Gateway 契約状態を取得します。<br>
-// 契約情報が存在しない場合は、未契約のステータスを返却します。<br>
-// 契約情報が存在する場合は、契約中のステータスと加入中のプラン情報を返却します。.
+// お客様の API Gateway 契約情報を取得します。<br>
+// 契約が存在する場合は、契約情報と利用中のプラン情報を返却します。.
 //
-// GET /subscriptions
-func (c *Client) GetSubscription(ctx context.Context) (GetSubscriptionRes, error) {
-	res, err := c.sendGetSubscription(ctx)
+// GET /subscriptions/{subscriptionId}
+func (c *Client) GetSubscriptionById(ctx context.Context, params GetSubscriptionByIdParams) (GetSubscriptionByIdRes, error) {
+	res, err := c.sendGetSubscriptionById(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendGetSubscription(ctx context.Context) (res GetSubscriptionRes, err error) {
+func (c *Client) sendGetSubscriptionById(ctx context.Context, params GetSubscriptionByIdParams) (res GetSubscriptionByIdRes, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/subscriptions/"
+	{
+		// Encode "subscriptionId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "subscriptionId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.SubscriptionId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeGetSubscriptionByIdResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetSubscriptions invokes getSubscriptions operation.
+//
+// お客様の API Gateway 契約情報の一覧を取得します。.
+//
+// GET /subscriptions
+func (c *Client) GetSubscriptions(ctx context.Context) (GetSubscriptionsRes, error) {
+	res, err := c.sendGetSubscriptions(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetSubscriptions(ctx context.Context) (res GetSubscriptionsRes, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
@@ -1895,7 +1953,7 @@ func (c *Client) sendGetSubscription(ctx context.Context) (res GetSubscriptionRe
 	}
 	defer resp.Body.Close()
 
-	result, err := decodeGetSubscriptionResponse(resp)
+	result, err := decodeGetSubscriptionsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -2015,7 +2073,8 @@ func (c *Client) sendGetUserAuthentication(ctx context.Context, params GetUserAu
 
 // GetUserGroup invokes getUserGroup operation.
 //
-// 登録した User が所属している Group の一覧を取得します。.
+// 登録した Group の一覧を取得します。<br> 指定した User が各 Group
+// に所属しているかどうかの情報も含めて返却します。.
 //
 // GET /users/{userId}/groups
 func (c *Client) GetUserGroup(ctx context.Context, params GetUserGroupParams) (GetUserGroupRes, error) {
@@ -2109,12 +2168,12 @@ func (c *Client) sendGetUsers(ctx context.Context) (res GetUsersRes, err error) 
 // 選択したプランで API Gateway の利用契約を行います。.
 //
 // POST /subscriptions
-func (c *Client) Subscribe(ctx context.Context, request *SubscriptionOption) (SubscribeRes, error) {
+func (c *Client) Subscribe(ctx context.Context, request *SubscriptionCreate) (SubscribeRes, error) {
 	res, err := c.sendSubscribe(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendSubscribe(ctx context.Context, request *SubscriptionOption) (res SubscribeRes, err error) {
+func (c *Client) sendSubscribe(ctx context.Context, request *SubscriptionCreate) (res SubscribeRes, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
@@ -2145,19 +2204,37 @@ func (c *Client) sendSubscribe(ctx context.Context, request *SubscriptionOption)
 
 // Unsubscribe invokes unsubscribe operation.
 //
-// API Gateway の契約を解約します。.
+// 登録した契約を解約します。.
 //
-// DELETE /subscriptions
-func (c *Client) Unsubscribe(ctx context.Context) (UnsubscribeRes, error) {
-	res, err := c.sendUnsubscribe(ctx)
+// DELETE /subscriptions/{subscriptionId}
+func (c *Client) Unsubscribe(ctx context.Context, params UnsubscribeParams) (UnsubscribeRes, error) {
+	res, err := c.sendUnsubscribe(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendUnsubscribe(ctx context.Context) (res UnsubscribeRes, err error) {
+func (c *Client) sendUnsubscribe(ctx context.Context, params UnsubscribeParams) (res UnsubscribeRes, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/subscriptions"
+	var pathParts [2]string
+	pathParts[0] = "/subscriptions/"
+	{
+		// Encode "subscriptionId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "subscriptionId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.SubscriptionId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
 	uri.AddPathParts(u, pathParts[:]...)
 
 	r, err := ht.NewRequest(ctx, "DELETE", u)
@@ -2588,19 +2665,37 @@ func (c *Client) sendUpdateService(ctx context.Context, request *ServiceDetail, 
 
 // UpdateSubscription invokes updateSubscription operation.
 //
-// 選択したプランで API Gateway の契約内容を更新します。.
+// 契約名を更新します。.
 //
-// PUT /subscriptions
-func (c *Client) UpdateSubscription(ctx context.Context, request *SubscriptionOption) (UpdateSubscriptionRes, error) {
-	res, err := c.sendUpdateSubscription(ctx, request)
+// PUT /subscriptions/{subscriptionId}
+func (c *Client) UpdateSubscription(ctx context.Context, request *SubscriptionUpdate, params UpdateSubscriptionParams) (UpdateSubscriptionRes, error) {
+	res, err := c.sendUpdateSubscription(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendUpdateSubscription(ctx context.Context, request *SubscriptionOption) (res UpdateSubscriptionRes, err error) {
+func (c *Client) sendUpdateSubscription(ctx context.Context, request *SubscriptionUpdate, params UpdateSubscriptionParams) (res UpdateSubscriptionRes, err error) {
 
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/subscriptions"
+	var pathParts [2]string
+	pathParts[0] = "/subscriptions/"
+	{
+		// Encode "subscriptionId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "subscriptionId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.SubscriptionId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
 	uri.AddPathParts(u, pathParts[:]...)
 
 	r, err := ht.NewRequest(ctx, "PUT", u)
