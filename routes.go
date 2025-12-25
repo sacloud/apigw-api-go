@@ -196,11 +196,10 @@ func (op *routeExtraOp) ReadAuthorization(ctx context.Context) (*v1.RouteAuthori
 }
 
 func (op *routeExtraOp) DisableAuthorization(ctx context.Context) error {
-	req := v1.NewRouteAuthorizationDetailSum0RouteAuthorizationDetailSum(v1.RouteAuthorizationDetailSum0{
-		IsACLEnabled: false,
-	})
-	res, err := op.client.UpsertRouteAuthorization(ctx, v1.NewOptRouteAuthorizationDetail(v1.RouteAuthorizationDetail{OneOf: req}),
-		v1.UpsertRouteAuthorizationParams{ServiceId: op.serviceId, RouteId: op.routeId})
+	res, err := op.client.UpsertRouteAuthorization(ctx, v1.NewOptRouteAuthorizationDetail(v1.RouteAuthorizationDetail{
+		Type:                      v1.RouteAuthorizationDetail0RouteAuthorizationDetail,
+		RouteAuthorizationDetail0: v1.RouteAuthorizationDetail0{IsACLEnabled: v1.RouteAuthorizationDetail0IsACLEnabledFalse},
+	}), v1.UpsertRouteAuthorizationParams{ServiceId: op.serviceId, RouteId: op.routeId})
 	if err != nil {
 		return NewAPIError("RouteExtra.DisableAuthorization", 0, err)
 	}
@@ -220,12 +219,13 @@ func (op *routeExtraOp) DisableAuthorization(ctx context.Context) error {
 }
 
 func (op *routeExtraOp) EnableAuthorization(ctx context.Context, groups []v1.RouteAuthorization) error {
-	req := v1.NewRouteAuthorizationDetailSum1RouteAuthorizationDetailSum(v1.RouteAuthorizationDetailSum1{
-		IsACLEnabled: true,
-		Groups:       groups,
-	})
-	res, err := op.client.UpsertRouteAuthorization(ctx, v1.NewOptRouteAuthorizationDetail(v1.RouteAuthorizationDetail{OneOf: req}),
-		v1.UpsertRouteAuthorizationParams{ServiceId: op.serviceId, RouteId: op.routeId})
+	res, err := op.client.UpsertRouteAuthorization(ctx, v1.NewOptRouteAuthorizationDetail(v1.RouteAuthorizationDetail{
+		Type: v1.RouteAuthorizationDetail1RouteAuthorizationDetail,
+		RouteAuthorizationDetail1: v1.RouteAuthorizationDetail1{
+			IsACLEnabled: v1.RouteAuthorizationDetail1IsACLEnabledTrue,
+			Groups:       groups,
+		},
+	}), v1.UpsertRouteAuthorizationParams{ServiceId: op.serviceId, RouteId: op.routeId})
 	if err != nil {
 		return NewAPIError("RouteExtra.EnableAuthorization", 0, err)
 	}

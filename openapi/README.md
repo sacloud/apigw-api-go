@@ -2,7 +2,7 @@ APIゲートウェイのOpenAPI定義は以下のページで公開されてい�
 
 https://manual.sakura.ad.jp/api/cloud/apigw/
 
-現状はv2.0.0を利用しています。
+現状はv2.0.1を利用しています。
 それに加えてapigw-api-goでは、公開されている定義からogenが未サポートの機能を削除した定義を利用しています。
 
 ## OpenAPI定義のdiff

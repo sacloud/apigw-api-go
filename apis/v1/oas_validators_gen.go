@@ -529,13 +529,17 @@ func (s *CertificateDetails) Validate() error {
 		if value, ok := s.Cert.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    0,
-					MaxLengthSet: false,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^-----BEGIN CERTIFICATE-----\\r?\\n(?:[A-Za-z0-9+/=\\r\\n]+)-----END CERTIFICATE-----\\r?\\n?$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     0,
+					MaxLengthSet:  false,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^-----BEGIN CERTIFICATE-----\\r?\\n(?:[A-Za-z0-9+/=\\r\\n]+)-----END CERTIFICATE-----\\r?\\n?$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -567,13 +571,17 @@ func (s *CorsConfig) Validate() error {
 		if value, ok := s.AccessControlExposedHeaders.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    4000,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     4000,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -593,13 +601,17 @@ func (s *CorsConfig) Validate() error {
 		if value, ok := s.AccessControlAllowHeaders.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    4000,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     4000,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -644,13 +656,17 @@ func (s *CorsConfig) Validate() error {
 		if value, ok := s.AccessControlAllowOrigins.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    4000,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     4000,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -680,13 +696,17 @@ func (s *Domain) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := (validate.String{
-			MinLength:    0,
-			MinLengthSet: false,
-			MaxLength:    0,
-			MaxLengthSet: false,
-			Email:        false,
-			Hostname:     false,
-			Regex:        regexMap["^\\s*(([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+([a-z\\d-]{2,})(\\.)?\\s*$"],
+			MinLength:     0,
+			MinLengthSet:  false,
+			MaxLength:     0,
+			MaxLengthSet:  false,
+			Email:         false,
+			Hostname:      false,
+			Regex:         regexMap["^\\s*(([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+([a-z\\d-]{2,})(\\.)?\\s*$"],
+			MinNumeric:    0,
+			MinNumericSet: false,
+			MaxNumeric:    0,
+			MaxNumericSet: false,
 		}).Validate(string(s.DomainName)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -1869,13 +1889,17 @@ func (s *IpRestrictionConfig) Validate() error {
 		for i, elem := range s.Ips {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    0,
-					MaxLengthSet: false,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     0,
+					MaxLengthSet:  false,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(elem)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -1930,13 +1954,17 @@ func (s IpRestrictionConfigRestrictedBy) Validate() error {
 func (s JSONKey) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^([a-zA-Z0-9_~\\-\\\\\\p{L}]+(\\.[a-zA-Z0-9_~\\-\\\\\\p{L}]+)*)$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^([a-zA-Z0-9_~\\-\\\\\\p{L}]+(\\.[a-zA-Z0-9_~\\-\\\\\\p{L}]+)*)$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -1982,13 +2010,17 @@ func (s JwtAlgorithm) Validate() error {
 func (s Name) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    1,
-		MinLengthSet: true,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^[\\p{L}\\p{N}._\\-]+$"],
+		MinLength:     1,
+		MinLengthSet:  true,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^[\\p{L}\\p{N}._\\-]+$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -2003,13 +2035,17 @@ func (s *ObjectStorageConfig) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := (validate.String{
-			MinLength:    0,
-			MinLengthSet: false,
-			MaxLength:    0,
-			MaxLengthSet: false,
-			Email:        false,
-			Hostname:     false,
-			Regex:        regexMap["^[a-z0-9.\\-]*$"],
+			MinLength:     0,
+			MinLengthSet:  false,
+			MaxLength:     0,
+			MaxLengthSet:  false,
+			Email:         false,
+			Hostname:      false,
+			Regex:         regexMap["^[a-z0-9.\\-]*$"],
+			MinNumeric:    0,
+			MinNumericSet: false,
+			MaxNumeric:    0,
+			MaxNumericSet: false,
 		}).Validate(string(s.BucketName)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -2024,13 +2060,17 @@ func (s *ObjectStorageConfig) Validate() error {
 		if value, ok := s.FolderName.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    0,
-					MaxLengthSet: false,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^[a-zA-Z0-9_\\-\\/!.*'()]*$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     0,
+					MaxLengthSet:  false,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^[a-zA-Z0-9_\\-\\/!.*'()]*$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -2163,6 +2203,7 @@ func (s *Overage) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -2175,33 +2216,6 @@ func (s *Overage) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "unitRequests",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if value, ok := s.UnitPrice.Get(); ok {
-			if err := func() error {
-				if err := (validate.Int{
-					MinSet:        true,
-					Min:           0,
-					MaxSet:        false,
-					Max:           0,
-					MinExclusive:  false,
-					MaxExclusive:  false,
-					MultipleOfSet: false,
-					MultipleOf:    0,
-				}).Validate(int64(value)); err != nil {
-					return errors.Wrap(err, "int")
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "unitPrice",
 			Error: err,
 		})
 	}
@@ -2229,6 +2243,7 @@ func (s *Plan) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -2256,6 +2271,7 @@ func (s *Plan) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -2335,13 +2351,17 @@ func (s PlanMaxRequestsUnit) Validate() error {
 func (s QueryParamKey) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^[a-zA-Z0-9-_.]+$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^[a-zA-Z0-9-_.]+$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -2351,13 +2371,17 @@ func (s QueryParamKey) Validate() error {
 func (s QueryParamValue) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^([\\w\\-._~!$&'()*+,;=:%]|%[0-9a-fA-F]{2})*$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^([\\w\\-._~!$&'()*+,;=:%]|%[0-9a-fA-F]{2})*$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -2404,13 +2428,17 @@ func (s *RequestAllowDetail) Validate() error {
 func (s RequestHeaderKey) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^[a-zA-Z0-9-_]+$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^[a-zA-Z0-9-_]+$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -2420,13 +2448,17 @@ func (s RequestHeaderKey) Validate() error {
 func (s RequestHeaderValue) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^[\\x20-\\x7E]*$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^[\\x20-\\x7E]*$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -3142,13 +3174,17 @@ func (s *ResponseAllowDetail) Validate() error {
 func (s ResponseHeaderKey) Validate() error {
 	alias := (string)(s)
 	if err := (validate.String{
-		MinLength:    0,
-		MinLengthSet: false,
-		MaxLength:    255,
-		MaxLengthSet: true,
-		Email:        false,
-		Hostname:     false,
-		Regex:        regexMap["^[a-zA-Z0-9-]+$"],
+		MinLength:     0,
+		MinLengthSet:  false,
+		MaxLength:     255,
+		MaxLengthSet:  true,
+		Email:         false,
+		Hostname:      false,
+		Regex:         regexMap["^[a-zA-Z0-9-]+$"],
+		MinNumeric:    0,
+		MinNumericSet: false,
+		MaxNumeric:    0,
+		MaxNumericSet: false,
 	}).Validate(string(alias)); err != nil {
 		return errors.Wrap(err, "string")
 	}
@@ -3174,6 +3210,7 @@ func (s *ResponseModificationDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(elem)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -3348,6 +3385,7 @@ func (s *ResponseRemoveDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(elem)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -3444,6 +3482,7 @@ func (s *ResponseRenameDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(elem)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -3636,6 +3675,7 @@ func (s *ResponseReplaceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(elem)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -3968,13 +4008,17 @@ func (s *Route) Validate() error {
 		if value, ok := s.Path.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^(\\/|~\\/).*"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     255,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^(\\/|~\\/).*"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -4045,6 +4089,7 @@ func (s *Route) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4096,20 +4141,37 @@ func (s *RouteAuthorization) Validate() error {
 	return nil
 }
 
-func (s *RouteAuthorizationDetail) Validate() error {
+func (s RouteAuthorizationDetail) Validate() error {
+	switch s.Type {
+	case RouteAuthorizationDetail0RouteAuthorizationDetail:
+		if err := s.RouteAuthorizationDetail0.Validate(); err != nil {
+			return err
+		}
+		return nil
+	case RouteAuthorizationDetail1RouteAuthorizationDetail:
+		if err := s.RouteAuthorizationDetail1.Validate(); err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.Errorf("invalid type %q", s.Type)
+	}
+}
+
+func (s *RouteAuthorizationDetail0) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if err := s.OneOf.Validate(); err != nil {
+		if err := s.IsACLEnabled.Validate(); err != nil {
 			return err
 		}
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "OneOf",
+			Name:  "isACLEnabled",
 			Error: err,
 		})
 	}
@@ -4117,6 +4179,83 @@ func (s *RouteAuthorizationDetail) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s RouteAuthorizationDetail0IsACLEnabled) Validate() error {
+	switch s {
+	case false:
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *RouteAuthorizationDetail1) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.IsACLEnabled.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "isACLEnabled",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Groups == nil {
+			return errors.New("nil is invalid value")
+		}
+		if err := (validate.Array{
+			MinLength:    1,
+			MinLengthSet: true,
+			MaxLength:    0,
+			MaxLengthSet: false,
+		}).ValidateLength(len(s.Groups)); err != nil {
+			return errors.Wrap(err, "array")
+		}
+		var failures []validate.FieldError
+		for i, elem := range s.Groups {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "groups",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s RouteAuthorizationDetail1IsACLEnabled) Validate() error {
+	switch s {
+	case true:
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *RouteAuthorizationDetailResponse) Validate() error {
@@ -4165,123 +4304,6 @@ func (s *RouteAuthorizationDetailResponse) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s RouteAuthorizationDetailSum) Validate() error {
-	switch s.Type {
-	case RouteAuthorizationDetailSum0RouteAuthorizationDetailSum:
-		if err := s.RouteAuthorizationDetailSum0.Validate(); err != nil {
-			return err
-		}
-		return nil
-	case RouteAuthorizationDetailSum1RouteAuthorizationDetailSum:
-		if err := s.RouteAuthorizationDetailSum1.Validate(); err != nil {
-			return err
-		}
-		return nil
-	default:
-		return errors.Errorf("invalid type %q", s.Type)
-	}
-}
-
-func (s *RouteAuthorizationDetailSum0) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := s.IsACLEnabled.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "isACLEnabled",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s RouteAuthorizationDetailSum0IsACLEnabled) Validate() error {
-	switch s {
-	case false:
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
-}
-
-func (s *RouteAuthorizationDetailSum1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := s.IsACLEnabled.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "isACLEnabled",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if s.Groups == nil {
-			return errors.New("nil is invalid value")
-		}
-		if err := (validate.Array{
-			MinLength:    1,
-			MinLengthSet: true,
-			MaxLength:    0,
-			MaxLengthSet: false,
-		}).ValidateLength(len(s.Groups)); err != nil {
-			return errors.Wrap(err, "array")
-		}
-		var failures []validate.FieldError
-		for i, elem := range s.Groups {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
-			}
-		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "groups",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s RouteAuthorizationDetailSum1IsACLEnabled) Validate() error {
-	switch s {
-	case true:
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }
 
 func (s *RouteDetail) Validate() error {
@@ -4341,13 +4363,17 @@ func (s *RouteDetail) Validate() error {
 		if value, ok := s.Path.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^(\\/|~\\/).*"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     255,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^(\\/|~\\/).*"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -4418,6 +4444,7 @@ func (s *RouteDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4562,13 +4589,17 @@ func (s *ServiceDetail) Validate() error {
 	}
 	if err := func() error {
 		if err := (validate.String{
-			MinLength:    0,
-			MinLengthSet: false,
-			MaxLength:    253,
-			MaxLengthSet: true,
-			Email:        false,
-			Hostname:     false,
-			Regex:        regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinLength:     0,
+			MinLengthSet:  false,
+			MaxLength:     253,
+			MaxLengthSet:  true,
+			Email:         false,
+			Hostname:      false,
+			Regex:         regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinNumeric:    0,
+			MinNumericSet: false,
+			MaxNumeric:    0,
+			MaxNumericSet: false,
 		}).Validate(string(s.Host)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -4583,13 +4614,17 @@ func (s *ServiceDetail) Validate() error {
 		if value, ok := s.Path.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     255,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -4617,6 +4652,7 @@ func (s *ServiceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4644,6 +4680,7 @@ func (s *ServiceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4671,6 +4708,7 @@ func (s *ServiceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4698,6 +4736,7 @@ func (s *ServiceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4725,6 +4764,7 @@ func (s *ServiceDetail) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4762,13 +4802,17 @@ func (s *ServiceDetail) Validate() error {
 		if value, ok := s.RouteHost.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    253,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     253,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -4895,13 +4939,17 @@ func (s *ServiceDetailRequest) Validate() error {
 	}
 	if err := func() error {
 		if err := (validate.String{
-			MinLength:    0,
-			MinLengthSet: false,
-			MaxLength:    253,
-			MaxLengthSet: true,
-			Email:        false,
-			Hostname:     false,
-			Regex:        regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinLength:     0,
+			MinLengthSet:  false,
+			MaxLength:     253,
+			MaxLengthSet:  true,
+			Email:         false,
+			Hostname:      false,
+			Regex:         regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinNumeric:    0,
+			MinNumericSet: false,
+			MaxNumeric:    0,
+			MaxNumericSet: false,
 		}).Validate(string(s.Host)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -4916,13 +4964,17 @@ func (s *ServiceDetailRequest) Validate() error {
 		if value, ok := s.Path.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     255,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -4950,6 +5002,7 @@ func (s *ServiceDetailRequest) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -4977,6 +5030,7 @@ func (s *ServiceDetailRequest) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5004,6 +5058,7 @@ func (s *ServiceDetailRequest) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5031,6 +5086,7 @@ func (s *ServiceDetailRequest) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5058,6 +5114,7 @@ func (s *ServiceDetailRequest) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5095,13 +5152,17 @@ func (s *ServiceDetailRequest) Validate() error {
 		if value, ok := s.RouteHost.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    253,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     253,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -5228,13 +5289,17 @@ func (s *ServiceDetailResponse) Validate() error {
 	}
 	if err := func() error {
 		if err := (validate.String{
-			MinLength:    0,
-			MinLengthSet: false,
-			MaxLength:    253,
-			MaxLengthSet: true,
-			Email:        false,
-			Hostname:     false,
-			Regex:        regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinLength:     0,
+			MinLengthSet:  false,
+			MaxLength:     253,
+			MaxLengthSet:  true,
+			Email:         false,
+			Hostname:      false,
+			Regex:         regexMap["^((([a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]*\\.)+[a-zA-Z]{2,})|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)))$"],
+			MinNumeric:    0,
+			MinNumericSet: false,
+			MaxNumeric:    0,
+			MaxNumericSet: false,
 		}).Validate(string(s.Host)); err != nil {
 			return errors.Wrap(err, "string")
 		}
@@ -5249,13 +5314,17 @@ func (s *ServiceDetailResponse) Validate() error {
 		if value, ok := s.Path.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     255,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         regexMap["^\\/[a-zA-Z0-9_\\-\\/!.*'()-]*$"],
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -5283,6 +5352,7 @@ func (s *ServiceDetailResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5310,6 +5380,7 @@ func (s *ServiceDetailResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5337,6 +5408,7 @@ func (s *ServiceDetailResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5364,6 +5436,7 @@ func (s *ServiceDetailResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5391,6 +5464,7 @@ func (s *ServiceDetailResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5428,13 +5502,17 @@ func (s *ServiceDetailResponse) Validate() error {
 		if value, ok := s.RouteHost.Get(); ok {
 			if err := func() error {
 				if err := (validate.String{
-					MinLength:    0,
-					MinLengthSet: false,
-					MaxLength:    253,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
+					MinLength:     0,
+					MinLengthSet:  false,
+					MaxLength:     253,
+					MaxLengthSet:  true,
+					Email:         false,
+					Hostname:      false,
+					Regex:         nil,
+					MinNumeric:    0,
+					MinNumericSet: false,
+					MaxNumeric:    0,
+					MaxNumericSet: false,
 				}).Validate(string(value)); err != nil {
 					return errors.Wrap(err, "string")
 				}
@@ -5683,6 +5761,7 @@ func (s *SubscriptionPlanResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5710,6 +5789,7 @@ func (s *SubscriptionPlanResponse) Validate() error {
 					MaxExclusive:  false,
 					MultipleOfSet: false,
 					MultipleOf:    0,
+					Pattern:       nil,
 				}).Validate(int64(value)); err != nil {
 					return errors.Wrap(err, "int")
 				}
@@ -5792,13 +5872,17 @@ func (s Tags) Validate() error {
 	for i, elem := range alias {
 		if err := func() error {
 			if err := (validate.String{
-				MinLength:    1,
-				MinLengthSet: true,
-				MaxLength:    255,
-				MaxLengthSet: true,
-				Email:        false,
-				Hostname:     false,
-				Regex:        regexMap["^[^\\/\\s\\u3000]+$"],
+				MinLength:     1,
+				MinLengthSet:  true,
+				MaxLength:     255,
+				MaxLengthSet:  true,
+				Email:         false,
+				Hostname:      false,
+				Regex:         regexMap["^[^\\/\\s\\u3000]+$"],
+				MinNumeric:    0,
+				MinNumericSet: false,
+				MaxNumeric:    0,
+				MaxNumericSet: false,
 			}).Validate(string(elem)); err != nil {
 				return errors.Wrap(err, "string")
 			}

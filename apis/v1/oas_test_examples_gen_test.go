@@ -2980,6 +2980,54 @@ func TestRouteAuthorizationDetail_EncodeDecode(t *testing.T) {
 	var typ2 RouteAuthorizationDetail
 	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
 }
+func TestRouteAuthorizationDetail0_EncodeDecode(t *testing.T) {
+	var typ RouteAuthorizationDetail0
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 RouteAuthorizationDetail0
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
+func TestRouteAuthorizationDetail0IsACLEnabled_EncodeDecode(t *testing.T) {
+	var typ RouteAuthorizationDetail0IsACLEnabled
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 RouteAuthorizationDetail0IsACLEnabled
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
+func TestRouteAuthorizationDetail1_EncodeDecode(t *testing.T) {
+	var typ RouteAuthorizationDetail1
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 RouteAuthorizationDetail1
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
+func TestRouteAuthorizationDetail1IsACLEnabled_EncodeDecode(t *testing.T) {
+	var typ RouteAuthorizationDetail1IsACLEnabled
+	typ.SetFake()
+
+	e := jx.Encoder{}
+	typ.Encode(&e)
+	data := e.Bytes()
+	require.True(t, std.Valid(data), "Encoded: %s", data)
+
+	var typ2 RouteAuthorizationDetail1IsACLEnabled
+	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
+}
 func TestRouteAuthorizationDetailResponse_EncodeDecode(t *testing.T) {
 	var typ RouteAuthorizationDetailResponse
 	typ.SetFake()
@@ -2990,66 +3038,6 @@ func TestRouteAuthorizationDetailResponse_EncodeDecode(t *testing.T) {
 	require.True(t, std.Valid(data), "Encoded: %s", data)
 
 	var typ2 RouteAuthorizationDetailResponse
-	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
-}
-func TestRouteAuthorizationDetailSum_EncodeDecode(t *testing.T) {
-	var typ RouteAuthorizationDetailSum
-	typ.SetFake()
-
-	e := jx.Encoder{}
-	typ.Encode(&e)
-	data := e.Bytes()
-	require.True(t, std.Valid(data), "Encoded: %s", data)
-
-	var typ2 RouteAuthorizationDetailSum
-	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
-}
-func TestRouteAuthorizationDetailSum0_EncodeDecode(t *testing.T) {
-	var typ RouteAuthorizationDetailSum0
-	typ.SetFake()
-
-	e := jx.Encoder{}
-	typ.Encode(&e)
-	data := e.Bytes()
-	require.True(t, std.Valid(data), "Encoded: %s", data)
-
-	var typ2 RouteAuthorizationDetailSum0
-	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
-}
-func TestRouteAuthorizationDetailSum0IsACLEnabled_EncodeDecode(t *testing.T) {
-	var typ RouteAuthorizationDetailSum0IsACLEnabled
-	typ.SetFake()
-
-	e := jx.Encoder{}
-	typ.Encode(&e)
-	data := e.Bytes()
-	require.True(t, std.Valid(data), "Encoded: %s", data)
-
-	var typ2 RouteAuthorizationDetailSum0IsACLEnabled
-	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
-}
-func TestRouteAuthorizationDetailSum1_EncodeDecode(t *testing.T) {
-	var typ RouteAuthorizationDetailSum1
-	typ.SetFake()
-
-	e := jx.Encoder{}
-	typ.Encode(&e)
-	data := e.Bytes()
-	require.True(t, std.Valid(data), "Encoded: %s", data)
-
-	var typ2 RouteAuthorizationDetailSum1
-	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
-}
-func TestRouteAuthorizationDetailSum1IsACLEnabled_EncodeDecode(t *testing.T) {
-	var typ RouteAuthorizationDetailSum1IsACLEnabled
-	typ.SetFake()
-
-	e := jx.Encoder{}
-	typ.Encode(&e)
-	data := e.Bytes()
-	require.True(t, std.Valid(data), "Encoded: %s", data)
-
-	var typ2 RouteAuthorizationDetailSum1IsACLEnabled
 	require.NoError(t, typ2.Decode(jx.DecodeBytes(data)))
 }
 func TestRouteDetail_EncodeDecode(t *testing.T) {

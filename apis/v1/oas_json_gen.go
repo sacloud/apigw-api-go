@@ -17179,45 +17179,73 @@ func (s *RouteAuthorization) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *RouteAuthorizationDetail) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
+// Encode encodes RouteAuthorizationDetail as json.
+func (s RouteAuthorizationDetail) Encode(e *jx.Encoder) {
+	switch s.Type {
+	case RouteAuthorizationDetail0RouteAuthorizationDetail:
+		s.RouteAuthorizationDetail0.Encode(e)
+	case RouteAuthorizationDetail1RouteAuthorizationDetail:
+		s.RouteAuthorizationDetail1.Encode(e)
+	}
 }
 
-// encodeFields encodes fields.
-func (s *RouteAuthorizationDetail) encodeFields(e *jx.Encoder) {
-	s.OneOf.encodeFields(e)
+func (s RouteAuthorizationDetail) encodeFields(e *jx.Encoder) {
+	switch s.Type {
+	case RouteAuthorizationDetail0RouteAuthorizationDetail:
+		s.RouteAuthorizationDetail0.encodeFields(e)
+	case RouteAuthorizationDetail1RouteAuthorizationDetail:
+		s.RouteAuthorizationDetail1.encodeFields(e)
+	}
 }
-
-var jsonFieldsNameOfRouteAuthorizationDetail = [0]string{}
 
 // Decode decodes RouteAuthorizationDetail from json.
 func (s *RouteAuthorizationDetail) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode RouteAuthorizationDetail to nil")
 	}
+	// Sum type fields.
+	if typ := d.Next(); typ != jx.Object {
+		return errors.Errorf("unexpected json type %q", typ)
+	}
+
+	var found bool
 	if err := d.Capture(func(d *jx.Decoder) error {
-		return s.OneOf.Decode(d)
-	}); err != nil {
-		return errors.Wrap(err, "decode field OneOf")
-	}
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
+		return d.ObjBytes(func(d *jx.Decoder, key []byte) error {
+			switch string(key) {
+			case "groups":
+				match := RouteAuthorizationDetail1RouteAuthorizationDetail
+				if found && s.Type != match {
+					s.Type = ""
+					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
+				}
+				found = true
+				s.Type = match
+			}
 			return d.Skip()
-		}
+		})
 	}); err != nil {
-		return errors.Wrap(err, "decode RouteAuthorizationDetail")
+		return errors.Wrap(err, "capture")
 	}
-
+	if !found {
+		s.Type = RouteAuthorizationDetail0RouteAuthorizationDetail
+	}
+	switch s.Type {
+	case RouteAuthorizationDetail0RouteAuthorizationDetail:
+		if err := s.RouteAuthorizationDetail0.Decode(d); err != nil {
+			return err
+		}
+	case RouteAuthorizationDetail1RouteAuthorizationDetail:
+		if err := s.RouteAuthorizationDetail1.Decode(d); err != nil {
+			return err
+		}
+	default:
+		return errors.Errorf("inferred invalid type: %s", s.Type)
+	}
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *RouteAuthorizationDetail) MarshalJSON() ([]byte, error) {
+func (s RouteAuthorizationDetail) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
@@ -17225,6 +17253,285 @@ func (s *RouteAuthorizationDetail) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *RouteAuthorizationDetail) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RouteAuthorizationDetail0) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RouteAuthorizationDetail0) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("isACLEnabled")
+		s.IsACLEnabled.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfRouteAuthorizationDetail0 = [1]string{
+	0: "isACLEnabled",
+}
+
+// Decode decodes RouteAuthorizationDetail0 from json.
+func (s *RouteAuthorizationDetail0) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RouteAuthorizationDetail0 to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "isACLEnabled":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.IsACLEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"isACLEnabled\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RouteAuthorizationDetail0")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfRouteAuthorizationDetail0) {
+					name = jsonFieldsNameOfRouteAuthorizationDetail0[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RouteAuthorizationDetail0) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RouteAuthorizationDetail0) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RouteAuthorizationDetail0IsACLEnabled as json.
+func (s RouteAuthorizationDetail0IsACLEnabled) Encode(e *jx.Encoder) {
+	e.Bool(bool(s))
+}
+
+// Decode decodes RouteAuthorizationDetail0IsACLEnabled from json.
+func (s *RouteAuthorizationDetail0IsACLEnabled) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RouteAuthorizationDetail0IsACLEnabled to nil")
+	}
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	*s = RouteAuthorizationDetail0IsACLEnabled(v)
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RouteAuthorizationDetail0IsACLEnabled) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RouteAuthorizationDetail0IsACLEnabled) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RouteAuthorizationDetail1) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RouteAuthorizationDetail1) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("isACLEnabled")
+		s.IsACLEnabled.Encode(e)
+	}
+	{
+		e.FieldStart("groups")
+		e.ArrStart()
+		for _, elem := range s.Groups {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+}
+
+var jsonFieldsNameOfRouteAuthorizationDetail1 = [2]string{
+	0: "isACLEnabled",
+	1: "groups",
+}
+
+// Decode decodes RouteAuthorizationDetail1 from json.
+func (s *RouteAuthorizationDetail1) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RouteAuthorizationDetail1 to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "isACLEnabled":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.IsACLEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"isACLEnabled\"")
+			}
+		case "groups":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				s.Groups = make([]RouteAuthorization, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RouteAuthorization
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Groups = append(s.Groups, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"groups\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RouteAuthorizationDetail1")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfRouteAuthorizationDetail1) {
+					name = jsonFieldsNameOfRouteAuthorizationDetail1[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RouteAuthorizationDetail1) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RouteAuthorizationDetail1) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RouteAuthorizationDetail1IsACLEnabled as json.
+func (s RouteAuthorizationDetail1IsACLEnabled) Encode(e *jx.Encoder) {
+	e.Bool(bool(s))
+}
+
+// Decode decodes RouteAuthorizationDetail1IsACLEnabled from json.
+func (s *RouteAuthorizationDetail1IsACLEnabled) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RouteAuthorizationDetail1IsACLEnabled to nil")
+	}
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	*s = RouteAuthorizationDetail1IsACLEnabled(v)
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RouteAuthorizationDetail1IsACLEnabled) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RouteAuthorizationDetail1IsACLEnabled) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -17348,363 +17655,6 @@ func (s *RouteAuthorizationDetailResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *RouteAuthorizationDetailResponse) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RouteAuthorizationDetailSum as json.
-func (s RouteAuthorizationDetailSum) Encode(e *jx.Encoder) {
-	switch s.Type {
-	case RouteAuthorizationDetailSum0RouteAuthorizationDetailSum:
-		s.RouteAuthorizationDetailSum0.Encode(e)
-	case RouteAuthorizationDetailSum1RouteAuthorizationDetailSum:
-		s.RouteAuthorizationDetailSum1.Encode(e)
-	}
-}
-
-func (s RouteAuthorizationDetailSum) encodeFields(e *jx.Encoder) {
-	switch s.Type {
-	case RouteAuthorizationDetailSum0RouteAuthorizationDetailSum:
-		s.RouteAuthorizationDetailSum0.encodeFields(e)
-	case RouteAuthorizationDetailSum1RouteAuthorizationDetailSum:
-		s.RouteAuthorizationDetailSum1.encodeFields(e)
-	}
-}
-
-// Decode decodes RouteAuthorizationDetailSum from json.
-func (s *RouteAuthorizationDetailSum) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RouteAuthorizationDetailSum to nil")
-	}
-	// Sum type fields.
-	if typ := d.Next(); typ != jx.Object {
-		return errors.Errorf("unexpected json type %q", typ)
-	}
-
-	var found bool
-	if err := d.Capture(func(d *jx.Decoder) error {
-		return d.ObjBytes(func(d *jx.Decoder, key []byte) error {
-			switch string(key) {
-			case "groups":
-				match := RouteAuthorizationDetailSum1RouteAuthorizationDetailSum
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
-			}
-			return d.Skip()
-		})
-	}); err != nil {
-		return errors.Wrap(err, "capture")
-	}
-	if !found {
-		s.Type = RouteAuthorizationDetailSum0RouteAuthorizationDetailSum
-	}
-	switch s.Type {
-	case RouteAuthorizationDetailSum0RouteAuthorizationDetailSum:
-		if err := s.RouteAuthorizationDetailSum0.Decode(d); err != nil {
-			return err
-		}
-	case RouteAuthorizationDetailSum1RouteAuthorizationDetailSum:
-		if err := s.RouteAuthorizationDetailSum1.Decode(d); err != nil {
-			return err
-		}
-	default:
-		return errors.Errorf("inferred invalid type: %s", s.Type)
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s RouteAuthorizationDetailSum) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RouteAuthorizationDetailSum) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *RouteAuthorizationDetailSum0) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *RouteAuthorizationDetailSum0) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("isACLEnabled")
-		s.IsACLEnabled.Encode(e)
-	}
-}
-
-var jsonFieldsNameOfRouteAuthorizationDetailSum0 = [1]string{
-	0: "isACLEnabled",
-}
-
-// Decode decodes RouteAuthorizationDetailSum0 from json.
-func (s *RouteAuthorizationDetailSum0) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RouteAuthorizationDetailSum0 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "isACLEnabled":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				if err := s.IsACLEnabled.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"isACLEnabled\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode RouteAuthorizationDetailSum0")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000001,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfRouteAuthorizationDetailSum0) {
-					name = jsonFieldsNameOfRouteAuthorizationDetailSum0[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *RouteAuthorizationDetailSum0) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RouteAuthorizationDetailSum0) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RouteAuthorizationDetailSum0IsACLEnabled as json.
-func (s RouteAuthorizationDetailSum0IsACLEnabled) Encode(e *jx.Encoder) {
-	e.Bool(bool(s))
-}
-
-// Decode decodes RouteAuthorizationDetailSum0IsACLEnabled from json.
-func (s *RouteAuthorizationDetailSum0IsACLEnabled) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RouteAuthorizationDetailSum0IsACLEnabled to nil")
-	}
-	v, err := d.Bool()
-	if err != nil {
-		return err
-	}
-	*s = RouteAuthorizationDetailSum0IsACLEnabled(v)
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s RouteAuthorizationDetailSum0IsACLEnabled) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RouteAuthorizationDetailSum0IsACLEnabled) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *RouteAuthorizationDetailSum1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *RouteAuthorizationDetailSum1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("isACLEnabled")
-		s.IsACLEnabled.Encode(e)
-	}
-	{
-		e.FieldStart("groups")
-		e.ArrStart()
-		for _, elem := range s.Groups {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
-	}
-}
-
-var jsonFieldsNameOfRouteAuthorizationDetailSum1 = [2]string{
-	0: "isACLEnabled",
-	1: "groups",
-}
-
-// Decode decodes RouteAuthorizationDetailSum1 from json.
-func (s *RouteAuthorizationDetailSum1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RouteAuthorizationDetailSum1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "isACLEnabled":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				if err := s.IsACLEnabled.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"isACLEnabled\"")
-			}
-		case "groups":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				s.Groups = make([]RouteAuthorization, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RouteAuthorization
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Groups = append(s.Groups, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"groups\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode RouteAuthorizationDetailSum1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfRouteAuthorizationDetailSum1) {
-					name = jsonFieldsNameOfRouteAuthorizationDetailSum1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *RouteAuthorizationDetailSum1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RouteAuthorizationDetailSum1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes RouteAuthorizationDetailSum1IsACLEnabled as json.
-func (s RouteAuthorizationDetailSum1IsACLEnabled) Encode(e *jx.Encoder) {
-	e.Bool(bool(s))
-}
-
-// Decode decodes RouteAuthorizationDetailSum1IsACLEnabled from json.
-func (s *RouteAuthorizationDetailSum1IsACLEnabled) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode RouteAuthorizationDetailSum1IsACLEnabled to nil")
-	}
-	v, err := d.Bool()
-	if err != nil {
-		return err
-	}
-	*s = RouteAuthorizationDetailSum1IsACLEnabled(v)
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s RouteAuthorizationDetailSum1IsACLEnabled) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *RouteAuthorizationDetailSum1IsACLEnabled) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
