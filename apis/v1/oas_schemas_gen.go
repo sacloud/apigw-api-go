@@ -5435,7 +5435,7 @@ type Overage struct {
 	// 超過リクエスト数単位.
 	UnitRequests OptInt `json:"unitRequests"`
 	// 超過リクエスト数単位の価格.
-	UnitPrice OptInt `json:"unitPrice"`
+	UnitPrice OptString `json:"unitPrice"`
 }
 
 // GetUnitRequests returns the value of UnitRequests.
@@ -5444,7 +5444,7 @@ func (s *Overage) GetUnitRequests() OptInt {
 }
 
 // GetUnitPrice returns the value of UnitPrice.
-func (s *Overage) GetUnitPrice() OptInt {
+func (s *Overage) GetUnitPrice() OptString {
 	return s.UnitPrice
 }
 
@@ -5454,7 +5454,7 @@ func (s *Overage) SetUnitRequests(val OptInt) {
 }
 
 // SetUnitPrice sets the value of UnitPrice.
-func (s *Overage) SetUnitPrice(val OptInt) {
+func (s *Overage) SetUnitPrice(val OptString) {
 	s.UnitPrice = val
 }
 
@@ -6695,18 +6695,142 @@ func (s *RouteAuthorization) SetEnabled(val OptBool) {
 }
 
 // Ref: #/components/schemas/RouteAuthorizationDetail
+// RouteAuthorizationDetail represents sum type.
 type RouteAuthorizationDetail struct {
-	OneOf RouteAuthorizationDetailSum
+	Type                      RouteAuthorizationDetailType // switch on this field
+	RouteAuthorizationDetail0 RouteAuthorizationDetail0
+	RouteAuthorizationDetail1 RouteAuthorizationDetail1
 }
 
-// GetOneOf returns the value of OneOf.
-func (s *RouteAuthorizationDetail) GetOneOf() RouteAuthorizationDetailSum {
-	return s.OneOf
+// RouteAuthorizationDetailType is oneOf type of RouteAuthorizationDetail.
+type RouteAuthorizationDetailType string
+
+// Possible values for RouteAuthorizationDetailType.
+const (
+	RouteAuthorizationDetail0RouteAuthorizationDetail RouteAuthorizationDetailType = "RouteAuthorizationDetail0"
+	RouteAuthorizationDetail1RouteAuthorizationDetail RouteAuthorizationDetailType = "RouteAuthorizationDetail1"
+)
+
+// IsRouteAuthorizationDetail0 reports whether RouteAuthorizationDetail is RouteAuthorizationDetail0.
+func (s RouteAuthorizationDetail) IsRouteAuthorizationDetail0() bool {
+	return s.Type == RouteAuthorizationDetail0RouteAuthorizationDetail
 }
 
-// SetOneOf sets the value of OneOf.
-func (s *RouteAuthorizationDetail) SetOneOf(val RouteAuthorizationDetailSum) {
-	s.OneOf = val
+// IsRouteAuthorizationDetail1 reports whether RouteAuthorizationDetail is RouteAuthorizationDetail1.
+func (s RouteAuthorizationDetail) IsRouteAuthorizationDetail1() bool {
+	return s.Type == RouteAuthorizationDetail1RouteAuthorizationDetail
+}
+
+// SetRouteAuthorizationDetail0 sets RouteAuthorizationDetail to RouteAuthorizationDetail0.
+func (s *RouteAuthorizationDetail) SetRouteAuthorizationDetail0(v RouteAuthorizationDetail0) {
+	s.Type = RouteAuthorizationDetail0RouteAuthorizationDetail
+	s.RouteAuthorizationDetail0 = v
+}
+
+// GetRouteAuthorizationDetail0 returns RouteAuthorizationDetail0 and true boolean if RouteAuthorizationDetail is RouteAuthorizationDetail0.
+func (s RouteAuthorizationDetail) GetRouteAuthorizationDetail0() (v RouteAuthorizationDetail0, ok bool) {
+	if !s.IsRouteAuthorizationDetail0() {
+		return v, false
+	}
+	return s.RouteAuthorizationDetail0, true
+}
+
+// NewRouteAuthorizationDetail0RouteAuthorizationDetail returns new RouteAuthorizationDetail from RouteAuthorizationDetail0.
+func NewRouteAuthorizationDetail0RouteAuthorizationDetail(v RouteAuthorizationDetail0) RouteAuthorizationDetail {
+	var s RouteAuthorizationDetail
+	s.SetRouteAuthorizationDetail0(v)
+	return s
+}
+
+// SetRouteAuthorizationDetail1 sets RouteAuthorizationDetail to RouteAuthorizationDetail1.
+func (s *RouteAuthorizationDetail) SetRouteAuthorizationDetail1(v RouteAuthorizationDetail1) {
+	s.Type = RouteAuthorizationDetail1RouteAuthorizationDetail
+	s.RouteAuthorizationDetail1 = v
+}
+
+// GetRouteAuthorizationDetail1 returns RouteAuthorizationDetail1 and true boolean if RouteAuthorizationDetail is RouteAuthorizationDetail1.
+func (s RouteAuthorizationDetail) GetRouteAuthorizationDetail1() (v RouteAuthorizationDetail1, ok bool) {
+	if !s.IsRouteAuthorizationDetail1() {
+		return v, false
+	}
+	return s.RouteAuthorizationDetail1, true
+}
+
+// NewRouteAuthorizationDetail1RouteAuthorizationDetail returns new RouteAuthorizationDetail from RouteAuthorizationDetail1.
+func NewRouteAuthorizationDetail1RouteAuthorizationDetail(v RouteAuthorizationDetail1) RouteAuthorizationDetail {
+	var s RouteAuthorizationDetail
+	s.SetRouteAuthorizationDetail1(v)
+	return s
+}
+
+type RouteAuthorizationDetail0 struct {
+	// 認可設定を無効にする.
+	IsACLEnabled RouteAuthorizationDetail0IsACLEnabled `json:"isACLEnabled"`
+}
+
+// GetIsACLEnabled returns the value of IsACLEnabled.
+func (s *RouteAuthorizationDetail0) GetIsACLEnabled() RouteAuthorizationDetail0IsACLEnabled {
+	return s.IsACLEnabled
+}
+
+// SetIsACLEnabled sets the value of IsACLEnabled.
+func (s *RouteAuthorizationDetail0) SetIsACLEnabled(val RouteAuthorizationDetail0IsACLEnabled) {
+	s.IsACLEnabled = val
+}
+
+// 認可設定を無効にする.
+type RouteAuthorizationDetail0IsACLEnabled bool
+
+const (
+	RouteAuthorizationDetail0IsACLEnabledFalse RouteAuthorizationDetail0IsACLEnabled = false
+)
+
+// AllValues returns all RouteAuthorizationDetail0IsACLEnabled values.
+func (RouteAuthorizationDetail0IsACLEnabled) AllValues() []RouteAuthorizationDetail0IsACLEnabled {
+	return []RouteAuthorizationDetail0IsACLEnabled{
+		RouteAuthorizationDetail0IsACLEnabledFalse,
+	}
+}
+
+type RouteAuthorizationDetail1 struct {
+	// 認可設定を有効にする.
+	IsACLEnabled RouteAuthorizationDetail1IsACLEnabled `json:"isACLEnabled"`
+	// 認可するGroupのリスト.
+	Groups []RouteAuthorization `json:"groups"`
+}
+
+// GetIsACLEnabled returns the value of IsACLEnabled.
+func (s *RouteAuthorizationDetail1) GetIsACLEnabled() RouteAuthorizationDetail1IsACLEnabled {
+	return s.IsACLEnabled
+}
+
+// GetGroups returns the value of Groups.
+func (s *RouteAuthorizationDetail1) GetGroups() []RouteAuthorization {
+	return s.Groups
+}
+
+// SetIsACLEnabled sets the value of IsACLEnabled.
+func (s *RouteAuthorizationDetail1) SetIsACLEnabled(val RouteAuthorizationDetail1IsACLEnabled) {
+	s.IsACLEnabled = val
+}
+
+// SetGroups sets the value of Groups.
+func (s *RouteAuthorizationDetail1) SetGroups(val []RouteAuthorization) {
+	s.Groups = val
+}
+
+// 認可設定を有効にする.
+type RouteAuthorizationDetail1IsACLEnabled bool
+
+const (
+	RouteAuthorizationDetail1IsACLEnabledTrue RouteAuthorizationDetail1IsACLEnabled = true
+)
+
+// AllValues returns all RouteAuthorizationDetail1IsACLEnabled values.
+func (RouteAuthorizationDetail1IsACLEnabled) AllValues() []RouteAuthorizationDetail1IsACLEnabled {
+	return []RouteAuthorizationDetail1IsACLEnabled{
+		RouteAuthorizationDetail1IsACLEnabledTrue,
+	}
 }
 
 // Ref: #/components/schemas/RouteAuthorizationDetailResponse
@@ -6735,144 +6859,6 @@ func (s *RouteAuthorizationDetailResponse) SetIsACLEnabled(val bool) {
 // SetGroups sets the value of Groups.
 func (s *RouteAuthorizationDetailResponse) SetGroups(val []RouteAuthorization) {
 	s.Groups = val
-}
-
-// RouteAuthorizationDetailSum represents sum type.
-type RouteAuthorizationDetailSum struct {
-	Type                         RouteAuthorizationDetailSumType // switch on this field
-	RouteAuthorizationDetailSum0 RouteAuthorizationDetailSum0
-	RouteAuthorizationDetailSum1 RouteAuthorizationDetailSum1
-}
-
-// RouteAuthorizationDetailSumType is oneOf type of RouteAuthorizationDetailSum.
-type RouteAuthorizationDetailSumType string
-
-// Possible values for RouteAuthorizationDetailSumType.
-const (
-	RouteAuthorizationDetailSum0RouteAuthorizationDetailSum RouteAuthorizationDetailSumType = "RouteAuthorizationDetailSum0"
-	RouteAuthorizationDetailSum1RouteAuthorizationDetailSum RouteAuthorizationDetailSumType = "RouteAuthorizationDetailSum1"
-)
-
-// IsRouteAuthorizationDetailSum0 reports whether RouteAuthorizationDetailSum is RouteAuthorizationDetailSum0.
-func (s RouteAuthorizationDetailSum) IsRouteAuthorizationDetailSum0() bool {
-	return s.Type == RouteAuthorizationDetailSum0RouteAuthorizationDetailSum
-}
-
-// IsRouteAuthorizationDetailSum1 reports whether RouteAuthorizationDetailSum is RouteAuthorizationDetailSum1.
-func (s RouteAuthorizationDetailSum) IsRouteAuthorizationDetailSum1() bool {
-	return s.Type == RouteAuthorizationDetailSum1RouteAuthorizationDetailSum
-}
-
-// SetRouteAuthorizationDetailSum0 sets RouteAuthorizationDetailSum to RouteAuthorizationDetailSum0.
-func (s *RouteAuthorizationDetailSum) SetRouteAuthorizationDetailSum0(v RouteAuthorizationDetailSum0) {
-	s.Type = RouteAuthorizationDetailSum0RouteAuthorizationDetailSum
-	s.RouteAuthorizationDetailSum0 = v
-}
-
-// GetRouteAuthorizationDetailSum0 returns RouteAuthorizationDetailSum0 and true boolean if RouteAuthorizationDetailSum is RouteAuthorizationDetailSum0.
-func (s RouteAuthorizationDetailSum) GetRouteAuthorizationDetailSum0() (v RouteAuthorizationDetailSum0, ok bool) {
-	if !s.IsRouteAuthorizationDetailSum0() {
-		return v, false
-	}
-	return s.RouteAuthorizationDetailSum0, true
-}
-
-// NewRouteAuthorizationDetailSum0RouteAuthorizationDetailSum returns new RouteAuthorizationDetailSum from RouteAuthorizationDetailSum0.
-func NewRouteAuthorizationDetailSum0RouteAuthorizationDetailSum(v RouteAuthorizationDetailSum0) RouteAuthorizationDetailSum {
-	var s RouteAuthorizationDetailSum
-	s.SetRouteAuthorizationDetailSum0(v)
-	return s
-}
-
-// SetRouteAuthorizationDetailSum1 sets RouteAuthorizationDetailSum to RouteAuthorizationDetailSum1.
-func (s *RouteAuthorizationDetailSum) SetRouteAuthorizationDetailSum1(v RouteAuthorizationDetailSum1) {
-	s.Type = RouteAuthorizationDetailSum1RouteAuthorizationDetailSum
-	s.RouteAuthorizationDetailSum1 = v
-}
-
-// GetRouteAuthorizationDetailSum1 returns RouteAuthorizationDetailSum1 and true boolean if RouteAuthorizationDetailSum is RouteAuthorizationDetailSum1.
-func (s RouteAuthorizationDetailSum) GetRouteAuthorizationDetailSum1() (v RouteAuthorizationDetailSum1, ok bool) {
-	if !s.IsRouteAuthorizationDetailSum1() {
-		return v, false
-	}
-	return s.RouteAuthorizationDetailSum1, true
-}
-
-// NewRouteAuthorizationDetailSum1RouteAuthorizationDetailSum returns new RouteAuthorizationDetailSum from RouteAuthorizationDetailSum1.
-func NewRouteAuthorizationDetailSum1RouteAuthorizationDetailSum(v RouteAuthorizationDetailSum1) RouteAuthorizationDetailSum {
-	var s RouteAuthorizationDetailSum
-	s.SetRouteAuthorizationDetailSum1(v)
-	return s
-}
-
-type RouteAuthorizationDetailSum0 struct {
-	// 認可設定を無効にする.
-	IsACLEnabled RouteAuthorizationDetailSum0IsACLEnabled `json:"isACLEnabled"`
-}
-
-// GetIsACLEnabled returns the value of IsACLEnabled.
-func (s *RouteAuthorizationDetailSum0) GetIsACLEnabled() RouteAuthorizationDetailSum0IsACLEnabled {
-	return s.IsACLEnabled
-}
-
-// SetIsACLEnabled sets the value of IsACLEnabled.
-func (s *RouteAuthorizationDetailSum0) SetIsACLEnabled(val RouteAuthorizationDetailSum0IsACLEnabled) {
-	s.IsACLEnabled = val
-}
-
-// 認可設定を無効にする.
-type RouteAuthorizationDetailSum0IsACLEnabled bool
-
-const (
-	RouteAuthorizationDetailSum0IsACLEnabledFalse RouteAuthorizationDetailSum0IsACLEnabled = false
-)
-
-// AllValues returns all RouteAuthorizationDetailSum0IsACLEnabled values.
-func (RouteAuthorizationDetailSum0IsACLEnabled) AllValues() []RouteAuthorizationDetailSum0IsACLEnabled {
-	return []RouteAuthorizationDetailSum0IsACLEnabled{
-		RouteAuthorizationDetailSum0IsACLEnabledFalse,
-	}
-}
-
-type RouteAuthorizationDetailSum1 struct {
-	// 認可設定を有効にする.
-	IsACLEnabled RouteAuthorizationDetailSum1IsACLEnabled `json:"isACLEnabled"`
-	// 認可するGroupのリスト.
-	Groups []RouteAuthorization `json:"groups"`
-}
-
-// GetIsACLEnabled returns the value of IsACLEnabled.
-func (s *RouteAuthorizationDetailSum1) GetIsACLEnabled() RouteAuthorizationDetailSum1IsACLEnabled {
-	return s.IsACLEnabled
-}
-
-// GetGroups returns the value of Groups.
-func (s *RouteAuthorizationDetailSum1) GetGroups() []RouteAuthorization {
-	return s.Groups
-}
-
-// SetIsACLEnabled sets the value of IsACLEnabled.
-func (s *RouteAuthorizationDetailSum1) SetIsACLEnabled(val RouteAuthorizationDetailSum1IsACLEnabled) {
-	s.IsACLEnabled = val
-}
-
-// SetGroups sets the value of Groups.
-func (s *RouteAuthorizationDetailSum1) SetGroups(val []RouteAuthorization) {
-	s.Groups = val
-}
-
-// 認可設定を有効にする.
-type RouteAuthorizationDetailSum1IsACLEnabled bool
-
-const (
-	RouteAuthorizationDetailSum1IsACLEnabledTrue RouteAuthorizationDetailSum1IsACLEnabled = true
-)
-
-// AllValues returns all RouteAuthorizationDetailSum1IsACLEnabled values.
-func (RouteAuthorizationDetailSum1IsACLEnabled) AllValues() []RouteAuthorizationDetailSum1IsACLEnabled {
-	return []RouteAuthorizationDetailSum1IsACLEnabled{
-		RouteAuthorizationDetailSum1IsACLEnabledTrue,
-	}
 }
 
 // Merged schema.

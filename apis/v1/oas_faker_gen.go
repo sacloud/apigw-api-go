@@ -3597,11 +3597,52 @@ func (s *RouteAuthorization) SetFake() {
 
 // SetFake set fake values.
 func (s *RouteAuthorizationDetail) SetFake() {
+	var variant RouteAuthorizationDetail0
+
+	{
+		variant.SetFake()
+	}
+	s.SetRouteAuthorizationDetail0(variant)
+}
+
+// SetFake set fake values.
+func (s *RouteAuthorizationDetail0) SetFake() {
 	{
 		{
-			s.OneOf.SetFake()
+			s.IsACLEnabled.SetFake()
 		}
 	}
+}
+
+// SetFake set fake values.
+func (s *RouteAuthorizationDetail0IsACLEnabled) SetFake() {
+	*s = RouteAuthorizationDetail0IsACLEnabledFalse
+}
+
+// SetFake set fake values.
+func (s *RouteAuthorizationDetail1) SetFake() {
+	{
+		{
+			s.IsACLEnabled.SetFake()
+		}
+	}
+	{
+		{
+			s.Groups = nil
+			for i := 0; i < 1; i++ {
+				var elem RouteAuthorization
+				{
+					elem.SetFake()
+				}
+				s.Groups = append(s.Groups, elem)
+			}
+		}
+	}
+}
+
+// SetFake set fake values.
+func (s *RouteAuthorizationDetail1IsACLEnabled) SetFake() {
+	*s = RouteAuthorizationDetail1IsACLEnabledTrue
 }
 
 // SetFake set fake values.
@@ -3623,56 +3664,6 @@ func (s *RouteAuthorizationDetailResponse) SetFake() {
 			}
 		}
 	}
-}
-
-// SetFake set fake values.
-func (s *RouteAuthorizationDetailSum) SetFake() {
-	var variant RouteAuthorizationDetailSum0
-
-	{
-		variant.SetFake()
-	}
-	s.SetRouteAuthorizationDetailSum0(variant)
-}
-
-// SetFake set fake values.
-func (s *RouteAuthorizationDetailSum0) SetFake() {
-	{
-		{
-			s.IsACLEnabled.SetFake()
-		}
-	}
-}
-
-// SetFake set fake values.
-func (s *RouteAuthorizationDetailSum0IsACLEnabled) SetFake() {
-	*s = RouteAuthorizationDetailSum0IsACLEnabledFalse
-}
-
-// SetFake set fake values.
-func (s *RouteAuthorizationDetailSum1) SetFake() {
-	{
-		{
-			s.IsACLEnabled.SetFake()
-		}
-	}
-	{
-		{
-			s.Groups = nil
-			for i := 0; i < 1; i++ {
-				var elem RouteAuthorization
-				{
-					elem.SetFake()
-				}
-				s.Groups = append(s.Groups, elem)
-			}
-		}
-	}
-}
-
-// SetFake set fake values.
-func (s *RouteAuthorizationDetailSum1IsACLEnabled) SetFake() {
-	*s = RouteAuthorizationDetailSum1IsACLEnabledTrue
 }
 
 // SetFake set fake values.
