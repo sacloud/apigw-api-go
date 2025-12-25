@@ -3,6 +3,9 @@
 ## [v0.2.1](https://github.com/sacloud/apigw-api-go/compare/v0.2.0...v0.2.1) - 2025-12-25
 - Use OpenAPI spec v2.0.1 and regenerate code with ogen v1.17 by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/25
 
+## [v0.2.1](https://github.com/sacloud/apigw-api-go/compare/v0.2.0...v0.2.1) - 2025-12-25
+- Use OpenAPI spec v2.0.1 and regenerate code with ogen v1.17 by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/25
+
 ## [v0.2.0](https://github.com/sacloud/apigw-api-go/compare/v0.1.0...v0.2.0) - 2025-12-11
 - Update github settings by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/9
 - ci: bump Songmu/tagpr from 1.8.4 to 1.9.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/11
