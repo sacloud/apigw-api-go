@@ -27,6 +27,7 @@ type SubscriptionAPI interface {
 	List(ctx context.Context) ([]v1.Subscription, error)
 	Create(ctx context.Context, id uuid.UUID, name string) error
 	Read(ctx context.Context, id uuid.UUID) (*v1.SubscriptionDetailResponse, error)
+	Update(ctx context.Context, id uuid.UUID, name string) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -110,6 +111,27 @@ func (op *subscriptionOp) Read(ctx context.Context, id uuid.UUID) (*v1.Subscript
 	}
 
 	return nil, NewAPIError("Subscription.Read", 0, nil)
+}
+
+func (op *subscriptionOp) Update(ctx context.Context, id uuid.UUID, name string) error {
+	res, err := op.client.UpdateSubscription(ctx, &v1.SubscriptionUpdate{Name: name},
+		v1.UpdateSubscriptionParams{SubscriptionId: id})
+	if err != nil {
+		return NewAPIError("Subscription.Update", 0, err)
+	}
+
+	switch p := res.(type) {
+	case *v1.UpdateSubscriptionNoContent:
+		return nil
+	case *v1.UpdateSubscriptionBadRequest:
+		return NewAPIError("Subscription.Update", 400, errors.New(p.Message.Value))
+	case *v1.UpdateSubscriptionUnauthorized:
+		return NewAPIError("Subscription.Update", 401, errors.New(p.Message.Value))
+	case *v1.UpdateSubscriptionInternalServerError:
+		return NewAPIError("Subscription.Update", 500, errors.New(p.Message.Value))
+	}
+
+	return NewAPIError("Subscription.Update", 0, nil)
 }
 
 func (op *subscriptionOp) Delete(ctx context.Context, id uuid.UUID) error {
