@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.2](https://github.com/sacloud/apigw-api-go/compare/v0.2.1...v0.2.2) - 2026-01-12
+- subscription: Add Update method by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/28
+
 ## [v0.2.1](https://github.com/sacloud/apigw-api-go/compare/v0.2.0...v0.2.1) - 2025-12-25
 - Use OpenAPI spec v2.0.1 and regenerate code with ogen v1.17 by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/25
 
