@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.3](https://github.com/sacloud/apigw-api-go/compare/v0.2.2...v0.2.3) - 2026-01-16
+- cert: fix ecdsa response issue by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/30
+
 ## [v0.2.2](https://github.com/sacloud/apigw-api-go/compare/v0.2.1...v0.2.2) - 2026-01-12
 - subscription: Add Update method by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/28
 
