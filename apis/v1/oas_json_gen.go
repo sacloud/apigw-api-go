@@ -2920,7 +2920,13 @@ func (s *CertificateDetails) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode CertificateDetails")
+		// ecdsaを指定していない場合には{}が返ってくるはずだが、現状APIの裏側で変換する処理が入ってしまい[]が返ってくるので、
+		// 修正されるまでそれを無視する
+		if errArr := d.Arr(func(d *jx.Decoder) error { return nil }); errArr == nil {
+			return nil
+		} else {
+			return errors.Wrap(err, "decode CertificateDetails")
+		}
 	}
 
 	return nil

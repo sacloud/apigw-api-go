@@ -382,6 +382,7 @@ index 222cce1..fc2974f 100644
 以下の問題に対処するための暫定的な修正:
 
 - ogenが現状`writeOnly`を認識しない不具合に対するrequiredチェックの無効化
+- ecdsaフィールドのレスポンスの`{}`が`[]`に変換されてしまう問題
 
 ```diff
 ddiff --git a/apis/v1/oas_json_gen.go b/apis/v1/oas_json_gen.go
@@ -397,6 +398,21 @@ index a2aa88f..af4e80a 100644
         } {
                 if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
                         // Mask only required fields and check equality to mask using XOR.
+@@ -2920,7 +2920,13 @@ func (s *CertificateDetails) Decode(d *jx.Decoder) error {
+                }
+                return nil
+        }); err != nil {
+-               return errors.Wrap(err, "decode CertificateDetails")
++               // ecdsaを指定していない場合には{}が返ってくるはずだが、現状APIの裏側で変換する処理が入ってしまい[]が返ってくるので、
++               // 修正されるまでそれを無視する
++               if errArr := d.Arr(func(d *jx.Decoder) error { return nil }); errArr == nil {
++                       return nil
++               } else {
++                       return errors.Wrap(err, "decode CertificateDetails")
++               }
+        }
+
+        return nil
 @@ -10340,7 +10340,7 @@ func (s *HmacAuth) Decode(d *jx.Decoder) error {
         // Validate required fields.
         var failures []validate.FieldError
