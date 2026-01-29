@@ -27,8 +27,8 @@ import (
 )
 
 func TestDomainAPI(t *testing.T) {
-	testutil.PreCheckEnvsFunc("SAKURACLOUD_ACCESS_TOKEN",
-		"SAKURACLOUD_ACCESS_TOKEN_SECRET", "SAKURACLOUD_TEST_DOMAIN")(t)
+	testutil.PreCheckEnvsFunc("SAKURA_ACCESS_TOKEN",
+		"SAKURA_ACCESS_TOKEN_SECRET", "SAKURA_TEST_DOMAIN")(t)
 
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
@@ -36,7 +36,7 @@ func TestDomainAPI(t *testing.T) {
 	ctx := context.Background()
 	domainOp := apigw.NewDomainOp(client)
 
-	domain, err := domainOp.Create(ctx, &v1.Domain{DomainName: os.Getenv("SAKURACLOUD_TEST_DOMAIN")})
+	domain, err := domainOp.Create(ctx, &v1.Domain{DomainName: os.Getenv("SAKURA_TEST_DOMAIN")})
 	require.Nil(t, err)
 
 	// TODO: 証明書を作ってのテストも行うようにする
