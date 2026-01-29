@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.4](https://github.com/sacloud/apigw-api-go/compare/v0.2.3...v0.2.4) - 2026-01-29
+- ci: bump Songmu/tagpr from 1.9.0 to 1.10.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/24
+- Use SAKURA prefix for envvar by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/35
+- ci: bump actions/setup-go from 6.1.0 to 6.2.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/32
+- ci: bump actions/checkout from 6.0.0 to 6.0.2 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/33
+
 ## [v0.2.3](https://github.com/sacloud/apigw-api-go/compare/v0.2.2...v0.2.3) - 2026-01-16
 - cert: fix ecdsa response issue by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/30
 
