@@ -46,7 +46,7 @@ func getSvcSubRequest() (v1.ServiceSubscriptionRequest, error) {
 }
 
 func TestSubscriptionAPI(t *testing.T) {
-	testutil.PreCheckEnvsFunc("SAKURACLOUD_ACCESS_TOKEN", "SAKURACLOUD_ACCESS_TOKEN_SECRET")(t)
+	testutil.PreCheckEnvsFunc("SAKURA_ACCESS_TOKEN", "SAKURA_ACCESS_TOKEN_SECRET")(t)
 
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
@@ -61,7 +61,7 @@ func TestSubscriptionAPI(t *testing.T) {
 	require.Nil(t, err)
 	require.Greater(t, len(plans), 0)
 
-	if os.Getenv("ENABLE_APIGW_SUBSCRIPTION_TEST") != "1" {
+	if os.Getenv("ENABLE_SAKURA_APIGW_SUBSCRIPTION_TEST") != "1" {
 		return
 	}
 

@@ -14,8 +14,8 @@ import (
 )
 
 func TestRouteAPI(t *testing.T) {
-	testutil.PreCheckEnvsFunc("SAKURACLOUD_ACCESS_TOKEN",
-		"SAKURACLOUD_ACCESS_TOKEN_SECRET", "SAKURACLOUD_TEST_HOST")(t)
+	testutil.PreCheckEnvsFunc("SAKURA_ACCESS_TOKEN",
+		"SAKURA_ACCESS_TOKEN_SECRET", "SAKURA_TEST_HOST")(t)
 
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
@@ -28,7 +28,7 @@ func TestRouteAPI(t *testing.T) {
 
 	service, err := serviceOp.Create(ctx, &v1.ServiceDetailRequest{
 		Name:         "test-service",
-		Host:         os.Getenv("SAKURACLOUD_TEST_HOST"),
+		Host:         os.Getenv("SAKURA_TEST_HOST"),
 		Port:         v1.NewOptInt(80),
 		Protocol:     "http",
 		Subscription: subReq,
@@ -65,8 +65,8 @@ func TestRouteAPI(t *testing.T) {
 }
 
 func TestRouteExtraAPI(t *testing.T) {
-	testutil.PreCheckEnvsFunc("SAKURACLOUD_ACCESS_TOKEN",
-		"SAKURACLOUD_ACCESS_TOKEN_SECRET", "SAKURACLOUD_TEST_HOST")(t)
+	testutil.PreCheckEnvsFunc("SAKURA_ACCESS_TOKEN",
+		"SAKURA_ACCESS_TOKEN_SECRET", "SAKURA_TEST_HOST")(t)
 
 	client, err := apigw.NewClient()
 	require.Nil(t, err)
@@ -78,7 +78,7 @@ func TestRouteExtraAPI(t *testing.T) {
 	serviceOp := apigw.NewServiceOp(client)
 	service, err := serviceOp.Create(ctx, &v1.ServiceDetailRequest{
 		Name:         "test-service",
-		Host:         os.Getenv("SAKURACLOUD_TEST_HOST"),
+		Host:         os.Getenv("SAKURA_TEST_HOST"),
 		Port:         v1.NewOptInt(80),
 		Protocol:     "http",
 		Subscription: subReq,
