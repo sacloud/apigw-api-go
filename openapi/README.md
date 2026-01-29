@@ -11,7 +11,7 @@ https://manual.sakura.ad.jp/api/cloud/apigw/
 
 - 現状ogenが複雑な`anyOf`を処理できないケース
 - 現状ogenが`array`に対する`default`を処理できないケース
-- CorsConfig/ObjectStorageConfigに対してogenがMergeエラーを出すので、要素が一つの`allOf`を削除
+- CorsConfig/ObjectStorageConfigに対してogenがMergeエラーを出すので、要素が1つの`allOf`を削除
 - OpenAPI定義のtypo群 (typeつけわすれ/string型とinteger型の間違い/定義生成時に不具合によるおかしな指定)
 
 ```diff
