@@ -20,10 +20,16 @@ import (
 
 	client "github.com/sacloud/api-client-go"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
+	"github.com/sacloud/saclient-go"
 )
 
-// DefaultAPIRootURL デフォルトのAPIルートURL
-const DefaultAPIRootURL = "https://secure.sakura.ad.jp/cloud/api/apigw/1.0/"
+const (
+	// DefaultAPIRootURL デフォルトのAPIルートURL
+	DefaultAPIRootURL = "https://secure.sakura.ad.jp/cloud/api/apigw/1.0/"
+
+	// ServiceKey SDKの種別を示すキー、プロファイルでのエンドポイント取得に利用する
+	ServiceKey = "apigw"
+)
 
 // UserAgent APIリクエスト時のユーザーエージェント
 var UserAgent = fmt.Sprintf(
@@ -34,21 +40,30 @@ var UserAgent = fmt.Sprintf(
 	client.DefaultUserAgent,
 )
 
-func NewClient(params ...client.ClientParam) (*v1.Client, error) {
-	return NewClientWithApiUrl(DefaultAPIRootURL, params...)
+func NewClient(client saclient.ClientAPI) (*v1.Client, error) {
+	endpointConfig, err := client.EndpointConfig()
+	if err != nil {
+		return nil, NewError("unable to load endpoint configuration", err)
+	}
+	endpoint := DefaultAPIRootURL
+	if ep, ok := endpointConfig.Endpoints[ServiceKey]; ok && ep != "" {
+		endpoint = ep
+	}
+	return NewClientWithAPIRootURL(client, endpoint)
 }
 
-func NewClientWithApiUrl(apiUrl string, params ...client.ClientParam) (*v1.Client, error) {
-	params = append(params, client.WithUserAgent(UserAgent))
-	c, err := client.NewClient(apiUrl, params...)
+func NewClientWithAPIRootURL(client saclient.ClientAPI, apiRootURL string) (*v1.Client, error) {
+	dupable, ok := client.(saclient.ClientOptionAPI)
+	if !ok {
+		return nil, NewError("client does not implement saclient.ClientOptionAPI", nil)
+	}
+
+	augmented, err := dupable.DupWith(
+		saclient.WithUserAgent(UserAgent),
+		saclient.WithForceAutomaticAuthentication(),
+	)
 	if err != nil {
 		return nil, err
 	}
-
-	v1Client, err := v1.NewClient(c.ServerURL(), v1.WithClient(c.NewHttpRequestDoer()))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create apigw client: %w", err)
-	}
-
-	return v1Client, nil
+	return v1.NewClient(apiRootURL, v1.WithClient(augmented))
 }

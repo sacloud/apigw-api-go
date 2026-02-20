@@ -22,6 +22,7 @@ import (
 	apigw "github.com/sacloud/apigw-api-go"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 	"github.com/sacloud/packages-go/testutil"
+	"github.com/sacloud/saclient-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,7 +31,8 @@ func TestDomainAPI(t *testing.T) {
 	testutil.PreCheckEnvsFunc("SAKURA_ACCESS_TOKEN",
 		"SAKURA_ACCESS_TOKEN_SECRET", "SAKURA_TEST_DOMAIN")(t)
 
-	client, err := apigw.NewClient()
+	var theClient saclient.Client
+	client, err := apigw.NewClient(&theClient)
 	require.Nil(t, err)
 
 	ctx := context.Background()
