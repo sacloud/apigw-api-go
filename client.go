@@ -60,7 +60,6 @@ func NewClientWithAPIRootURL(client saclient.ClientAPI, apiRootURL string) (*v1.
 
 	augmented, err := dupable.DupWith(
 		saclient.WithUserAgent(UserAgent),
-		saclient.WithForceAutomaticAuthentication(),
 	)
 	if err != nil {
 		return nil, err
