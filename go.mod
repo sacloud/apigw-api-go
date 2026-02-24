@@ -1,6 +1,8 @@
 module github.com/sacloud/apigw-api-go
 
-go 1.25
+go 1.25.0
+
+toolchain go1.25.7
 
 tool github.com/ogen-go/ogen/cmd/ogen
 
@@ -9,24 +11,26 @@ require (
 	github.com/go-faster/jx v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/ogen-go/ogen v1.17.0
-	github.com/sacloud/api-client-go v0.3.4
+	github.com/sacloud/api-client-go v0.3.5
 	github.com/sacloud/packages-go v0.0.12
+	github.com/sacloud/saclient-go v0.3.1
 	github.com/stretchr/testify v1.11.1
 )
 
 require (
 	github.com/benbjohnson/clock v1.3.5 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
+	github.com/gofrs/flock v0.13.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sacloud/go-http v0.1.9 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
@@ -41,7 +45,6 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
