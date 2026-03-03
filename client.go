@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"runtime"
 
-	client "github.com/sacloud/api-client-go"
 	v1 "github.com/sacloud/apigw-api-go/apis/v1"
 	"github.com/sacloud/saclient-go"
 )
@@ -33,11 +32,10 @@ const (
 
 // UserAgent APIリクエスト時のユーザーエージェント
 var UserAgent = fmt.Sprintf(
-	"apigw-api-go/%s (%s/%s; +https://github.com/sacloud/apigw-api-go) %s",
+	"apigw-api-go/%s (%s/%s; +https://github.com/sacloud/apigw-api-go)",
 	Version,
 	runtime.GOOS,
 	runtime.GOARCH,
-	client.DefaultUserAgent,
 )
 
 func NewClient(client saclient.ClientAPI) (*v1.Client, error) {
