@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.1](https://github.com/sacloud/apigw-api-go/compare/v0.3.0...v0.3.1) - 2026-08-03
+- update README for repository transition by @shyouhei in https://github.com/sacloud/apigw-api-go/pull/57
+
 ## [v0.3.0](https://github.com/sacloud/apigw-api-go/compare/v0.2.3...v0.3.0) - 2026-03-03
 - ci: bump Songmu/tagpr from 1.9.0 to 1.10.0 by @dependabot[bot] in https://github.com/sacloud/apigw-api-go/pull/24
 - Use SAKURA prefix for envvar by @repeatedly in https://github.com/sacloud/apigw-api-go/pull/35
